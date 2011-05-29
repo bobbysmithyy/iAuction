@@ -1,4 +1,4 @@
-package org.minr.Zaraza107.iAuction;
+package org.rob4001.iAuction;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -71,7 +71,7 @@ public final class iProperty {
     }
 
     public Map<String, String> returnMap() throws Exception {
-	Map<String, String> map = new HashMap();
+	Map<String, String> map = new HashMap<String, String>();
 	BufferedReader reader = new BufferedReader(new FileReader(this.fileName));
 	String line;
 	while ((line = reader.readLine()) != null) {
