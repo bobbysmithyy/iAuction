@@ -5,12 +5,14 @@
 
 package org.rob4001.iAuction;
 
+import com.herocraftonline.dthielke.herochat.HeroChat;
+import com.herocraftonline.dthielke.herochat.channels.Channel;
+import com.herocraftonline.dthielke.herochat.channels.ChannelManager;
 import com.iConomy.*;
 import com.iConomy.system.Holdings;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.File;
-import java.io.PrintStream;
 import java.util.*;
 
 
@@ -211,9 +213,12 @@ public class iAuction extends JavaPlugin
             if(!p.isEnabled())
                 server.getPluginManager().enablePlugin(p);
             hcChannelName = Settings.getString("herochat-channel-name", null);
+            HeroChat hc = server.getPluginManager().
+            ChannelManager cm = p.getChannelManager();
+            Channel c = cm.getChannel(hcChannelName);
         } else
         {
-            System.out.println("[iAuction] GroupManager system is enabled but could not be loaded!");
+            System.out.println("[iAuction] HeroChat system is enabled but could not be loaded!");
         }
     }
 
@@ -276,8 +281,12 @@ public class iAuction extends JavaPlugin
     }
 
     public void broadcast(String msg)
+    {if(hcEnabled)
     {
+    	c.sendMessage(tag, msg);
+    }else{
         server.broadcastMessage((new StringBuilder(String.valueOf(tag))).append(msg).toString());
+    }
     }
 
     public void auctionStart(Player player, String msg[])
@@ -648,6 +657,7 @@ public class iAuction extends JavaPlugin
     public static iProperty Item;
     public static HashMap<String, String> items;
     public static iProperty Settings;
+    public Channel c;
 
 
 }
