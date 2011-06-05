@@ -115,12 +115,16 @@ public class iAuction extends JavaPlugin
         (new File(path)).mkdir();
         Settings = new iProperty((new StringBuilder(String.valueOf(path))).append("iAuction.settings").toString());
         maxTime = Settings.getInt("maximal-time", 0);
+        hcChannelName = Settings.getString("herochat-channel-name", "global");
         hcEnabled = Settings.getBoolean("enable-herochat", false);
+        
         if(hcEnabled)
         {
-            hcChannelName = Settings.getString("herochat-channel-name", null);
-            if(hcChannelName != null)
+        	
+   
                 enableHeroChat();
+            
+            
         }
         String perm = Settings.getString("permission-plugin", "permissions");
         if(perm.equalsIgnoreCase("permissions"))
@@ -212,10 +216,14 @@ public class iAuction extends JavaPlugin
         {
             if(!p.isEnabled())
                 server.getPluginManager().enablePlugin(p);
-            hcChannelName = Settings.getString("herochat-channel-name", null);
-            HeroChat hc = server.getPluginManager().
-            ChannelManager cm = p.getChannelManager();
-            Channel c = cm.getChannel(hcChannelName);
+            ChannelManager cm= ((HeroChat)p).getChannelManager();
+            c = cm.getChannel(hcChannelName);
+            if (c.getName().equalsIgnoreCase(hcChannelName) || c.getNick().equalsIgnoreCase(hcChannelName)){
+            	System.out.println("[iAuction]Herochat system has enabled properly!");
+            }else{
+            	System.out.println("[iAuction]Your channel spesified does not exist");
+            }
+           
         } else
         {
             System.out.println("[iAuction] HeroChat system is enabled but could not be loaded!");
@@ -283,7 +291,8 @@ public class iAuction extends JavaPlugin
     public void broadcast(String msg)
     {if(hcEnabled)
     {
-    	c.sendMessage(tag, msg);
+    	c.sendMessage(tag, msg,c.getMsgFormat(),c.getPlayers(),false,true);
+    	//c.sendMessage(tag, msg);
     }else{
         server.broadcastMessage((new StringBuilder(String.valueOf(tag))).append(msg).toString());
     }
@@ -381,7 +390,8 @@ public class iAuction extends JavaPlugin
                         {
                             isAuction = true;
                             inventory.removeItem(new ItemStack[] {
-                                new ItemStack(auctionItemId, auctionItemAmount)
+
+                                new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte))
                             });
                             final int interval = auctionTime;
                             final iAuction plug = this;
@@ -505,7 +515,7 @@ public class iAuction extends JavaPlugin
                 auctionTimer.cancel();
                 if(win)
                 {
-                    PlayerInventory winv = winner.getInventory();
+                    
                     broadcast((new StringBuilder(String.valueOf(auctionStatusColor))).append("-- Auction Ended -- Winner [ ").append(winner.getDisplayName()).append(auctionStatusColor).append(" ] -- ").toString());
                     winner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("Enjoy your items!").toString());
                     auctionOwner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("Your items have been sold for ").append(com.iConomy.iConomy.format(currentBid)).append("!").toString());
@@ -514,16 +524,31 @@ public class iAuction extends JavaPlugin
                     balance.subtract(currentBid);
                     balance = com.iConomy.iConomy.getAccount(auctionOwner.getName()).getHoldings();
                     balance.add(currentBid);
-                    winv.addItem(new ItemStack[] {
-                        new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte))
-                    });
+                    if(Items.hasSpace(winner, auctionItemAmount)){
+                        winner.getInventory().addItem(new ItemStack[] {
+                            new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte))
+                        });}
+                        else{
+                        	winner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("You do not have enough Inventory space!").toString());
+                        	winner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("They have been dropped at your feet").toString());
+                        	winner.getWorld().dropItemNaturally(winner.getLocation(),new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte)));
+                        
+                        }
                 } else
                 {
                     broadcast((new StringBuilder(String.valueOf(auctionStatusColor))).append("-- Auction ended with no bids --").toString());
                     auctionOwner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("Your items have been returned to you!").toString());
+                    if(Items.hasSpace(auctionOwner, auctionItemAmount)){
                     auctionOwner.getInventory().addItem(new ItemStack[] {
                         new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte))
-                    });
+                    });}
+                    else{
+                    	auctionOwner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("You do not have enough Inventory space!").toString());
+                    	auctionOwner.sendMessage((new StringBuilder(String.valueOf(tag))).append(auctionStatusColor).append("They have been dropped at your feet").toString());
+                    	auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(),new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte)auction_item_byte)));
+                    
+                    }
+                    
                 }
                 auctionItemId = 0;
                 auctionItemAmount = 0;
@@ -576,6 +601,7 @@ public class iAuction extends JavaPlugin
                         {
                             if(bid > currentBid)
                             {
+                            	
                                 win = true;
                                 if(bid > auctionItemBid)
                                 {
@@ -589,6 +615,8 @@ public class iAuction extends JavaPlugin
                                     broadcast((new StringBuilder(String.valueOf(auctionStatusColor))).append("Bid raised! Currently stands at: ").append(auctionTimeColor).append(com.iConomy.iConomy.format(bid + 1.0D)).toString());
                                     currentBid = bid + 1.0D;
                                 }
+                            	
+                            	
                             } else
                             {
                                 warn(player, "Your bid was too low.");

@@ -69,6 +69,28 @@ public class Items {
 
     	return (total >= amount) ? true : false;
     }
+    /**
+     * Checks whether a player has the required amount of space in their inventory or not.
+     *
+     * @param player
+     * @param itemId
+     * @param amount
+     * @return true / false
+     */
+    
+    public static boolean hasSpace(Player player, int needed) {
+    	PlayerInventory inventory = player.getInventory();
+    	ItemStack[] items = inventory.getContents();
+    	int space = 36;
+
+    	for (ItemStack item : items) {
+    		if ((item != null)) {
+    			space += -1;
+    		}
+    	}
+
+    	return (space >= needed) ? true : false;
+    }
 
     /**
      * Checks the getArray() for the amount total of items
@@ -119,7 +141,7 @@ public class Items {
      */
     public static void remove(Player player, int item, int amount) {
     	PlayerInventory inventory = player.getInventory();
-    	ItemStack[] items = inventory.getContents();
+    	inventory.getContents();
     	int counter = amount;
     	int leftover = 0;
 
@@ -241,8 +263,6 @@ public class Items {
     	if (type == -1 || type == 0) {
     		return true;
     	}
-
-    	int itemId = -1;
 
     	if (id == 35 || id == 351 || id == 63) {
     		if (type >= 0 && type <= 15) {
