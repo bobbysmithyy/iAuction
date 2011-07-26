@@ -14,6 +14,7 @@ import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.File;
 import java.util.*;
+import com.ensifera.animosity.craftirc.CraftIRC;
 
 
 
@@ -117,6 +118,8 @@ public class iAuction extends JavaPlugin
         maxTime = Settings.getInt("maximal-time", 0);
         hcChannelName = Settings.getString("herochat-channel-name", "global");
         hcEnabled = Settings.getBoolean("enable-herochat", false);
+        circEnabled = Settings.getBoolean("enable-craftirc", false);
+        circTag = Settings.getString("craftirc-tag", "all");
         
         if(hcEnabled)
         {
@@ -126,6 +129,16 @@ public class iAuction extends JavaPlugin
             
             
         }
+
+        if(circEnabled)
+        {
+
+
+                enableCraftIRC();
+
+
+        }
+
         String perm = Settings.getString("permission-plugin", "permissions");
         if(perm.equalsIgnoreCase("permissions"))
             enablePermissions();
@@ -159,6 +172,24 @@ public class iAuction extends JavaPlugin
     public void setDebugging(Player player, boolean value)
     {
         debugees.put(player, Boolean.valueOf(value));
+    }
+
+    public void enableCraftIRC()
+    {
+        Plugin p = server.getPluginManager().getPlugin("CraftIRC");
+        if (p == null) {
+            System.out.println("[iAuction] WARNING! CraftIRC not detected!");
+            circEnabled = false;
+        } else {
+            try {
+                System.out.println("[iAuction] CraftIRC found, enabling support...");
+                craftIRC = (CraftIRC) p;
+            } catch (ClassCastException ex) {
+                ex.printStackTrace();
+                System.out.println("[SEVERE] [iAuction] Unable to link to CraftIRC!");
+                circEnabled = false;
+            }
+        }
     }
 
     public void enableiConomy()
@@ -296,6 +327,11 @@ public class iAuction extends JavaPlugin
     }else{
         server.broadcastMessage((new StringBuilder(String.valueOf(tag))).append(msg).toString());
     }
+     if(circEnabled)
+     {
+         // Strip colour codes from IRC output as CraftIRC support is still shaky.
+         craftIRC.sendMessageToTag((new StringBuilder("[Auction] ")).append(msg.replaceAll("§[0-9a-f]", "")).toString(), circTag);
+     }
     }
 
     public void auctionStart(Player player, String msg[])
@@ -686,6 +722,9 @@ public class iAuction extends JavaPlugin
     public static HashMap<String, String> items;
     public static iProperty Settings;
     public Channel c;
+    private boolean circEnabled;
+    private String circTag;
+    public CraftIRC craftIRC;
 
 
 }
