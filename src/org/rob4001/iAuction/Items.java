@@ -88,8 +88,12 @@ public class Items {
     			space += -1;
     		}
     	}
-
-    	return (space >= needed) ? true : false;
+if(space >= needed){
+	return true;
+}else{
+	return false;
+}
+    	
     }
 
     /**
