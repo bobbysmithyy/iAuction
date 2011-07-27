@@ -1,8 +1,8 @@
 package org.rob4001.iAuction;
 
 
-
 // Imports for Register
+
 import org.rob4001.iAuction.payment.Method;
 import org.rob4001.iAuction.payment.Methods;
 
@@ -29,7 +29,7 @@ public class server extends ServerListener {
         if (this.Methods != null && this.Methods.hasMethod()) {
             Boolean check = this.Methods.checkDisabled(event.getPlugin());
 
-            if(check) {
+            if (check) {
                 this.plugin.Method = null;
                 System.out.println("[" + plugin.info.getName() + "] Payment method was disabled. No longer accepting payments.");
             }
@@ -40,7 +40,7 @@ public class server extends ServerListener {
     public void onPluginEnable(PluginEnableEvent event) {
         // Check to see if we need a payment method
         if (!this.Methods.hasMethod()) {
-            if(this.Methods.setMethod(event.getPlugin())) {
+            if (this.Methods.setMethod(event.getPlugin())) {
                 // You might want to make this a public variable inside your MAIN class public Method Method = null;
                 // then reference it through this.plugin.Method so that way you can use it in the rest of your plugin ;)
                 this.plugin.Method = this.Methods.getMethod();

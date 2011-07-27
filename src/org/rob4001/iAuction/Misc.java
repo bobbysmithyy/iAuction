@@ -2,6 +2,7 @@ package org.rob4001.iAuction;
 
 import java.io.File;
 import java.io.IOException;
+
 import org.bukkit.entity.Player;
 
 /**
@@ -20,6 +21,7 @@ import org.bukkit.entity.Player;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
  * Misc.java
  * <br /><br />
@@ -41,9 +43,8 @@ public class Misc {
      * arguments({0,1,2}, 2); // < 4 length = [0,1,2] = true. It does end at 2.
      * </pre></blockquote>
      *
-     * @param array The array we are checking the length of
+     * @param array  The array we are checking the length of
      * @param amount The amount necessary to continue onwards.
-     *
      * @return <code>Boolean</code> - True or false based on length.
      */
     public static Boolean arguments(String[] array, int amount) {
@@ -53,9 +54,8 @@ public class Misc {
     /**
      * Checks text against one variables.
      *
-     * @param text The text that we were provided with.
+     * @param text    The text that we were provided with.
      * @param against The first variable that needs to be checked against
-     *
      * @return <code>Boolean</code> - True or false based on text.
      */
     public static Boolean is(String text, String against) {
@@ -65,10 +65,9 @@ public class Misc {
     /**
      * Checks text against two variables, if it equals at least one returns true.
      *
-     * @param text The text that we were provided with.
+     * @param text    The text that we were provided with.
      * @param against The first variable that needs to be checked against
-     * @param or The second variable that it could possibly be.
-     *
+     * @param or      The second variable that it could possibly be.
      * @return <code>Boolean</code> - True or false based on text.
      */
     public static Boolean isEither(String text, String against, String or) {
@@ -78,9 +77,8 @@ public class Misc {
     /**
      * Basic formatting on Currency
      *
-     * @param Balance The player balance or amount being payed.
+     * @param Balance  The player balance or amount being payed.
      * @param currency The iConomy currency name
-     *
      * @return <code>String</code> - Formatted with commas & currency
      */
     public static String formatCurrency(int Balance, String currency) {
@@ -91,7 +89,6 @@ public class Misc {
      * Basic formatting for commas.
      *
      * @param str The string we are attempting to format
-     *
      * @return <code>String</code> - Formatted with commas
      */
     public static String insertCommas(String str) {
@@ -139,13 +136,15 @@ public class Misc {
      * @param s
      * @return
      */
-    public static String capitalize(String s){
+    public static String capitalize(String s) {
         return s.toUpperCase().charAt(0) + s.toLowerCase().substring(1);
     }
 
-    /** Turns "SomeName" into "Some Name" or "MyABC" into "My ABC".
-    (Inserts a space before a capital letter unless it is at the beginning of
-    the string or preceded by a capital letter.) */
+    /**
+     * Turns "SomeName" into "Some Name" or "MyABC" into "My ABC".
+     * (Inserts a space before a capital letter unless it is at the beginning of
+     * the string or preceded by a capital letter.)
+     */
     public static String camelToPhrase(String str) {
         String newStr = "";
         for (int i = 0; i < str.length(); i++) {
