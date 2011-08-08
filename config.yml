@@ -1,0 +1,16 @@
+mysql:
+    server_address: localhost
+    server_port: 8887
+    database_name: kingdoms
+    username: root
+    password: root
+    database_table_prefix: iAuction_
+
+auction:
+    maximum_time: 10
+    herochat_enabled: false
+    herochat_channel_name: g
+    craftirc_enabled: false
+    craftirc_tag: all
+    enable_antisnipe: false
+    antisnipe_value: 5
