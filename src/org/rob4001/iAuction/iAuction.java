@@ -603,7 +603,6 @@ public class iAuction extends JavaPlugin {
         }
     }
 
-    private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     public static Server server;
     private Timer auctionTimer;
     private TimerTask auctionTT;

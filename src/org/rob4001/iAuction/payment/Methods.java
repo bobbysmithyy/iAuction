@@ -1,7 +1,5 @@
 package org.rob4001.iAuction.payment;
 
-import org.rob4001.iAuction.payment.methods.BOSE6;
-import org.rob4001.iAuction.payment.methods.BOSE7;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -42,11 +40,7 @@ public class Methods {
     }
 
     private void _init() {
-        this.addMethod("iConomy", new org.rob4001.iAuction.payment.methods.iCo4());
-        this.addMethod("iConomy", new org.rob4001.iAuction.payment.methods.iCo5());
-        this.addMethod("BOSEconomy", new BOSE6());
-        this.addMethod("BOSEconomy", new BOSE7());
-        this.addMethod("Essentials", new org.rob4001.iAuction.payment.methods.EE17());
+    	this.addMethod("iConomy", new org.rob4001.iAuction.payment.methods.iCo5());
     }
 
     public Set<String> getDependencies() {

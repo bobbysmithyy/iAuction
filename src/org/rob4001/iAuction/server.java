@@ -3,7 +3,6 @@ package org.rob4001.iAuction;
 
 // Imports for Register
 
-import org.rob4001.iAuction.payment.Method;
 import org.rob4001.iAuction.payment.Methods;
 
 // Bukkit Imports
