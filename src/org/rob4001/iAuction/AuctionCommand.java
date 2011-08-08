@@ -33,6 +33,7 @@ public class AuctionCommand implements CommandExecutor {
     public static boolean isAuction = false;
     public static Player winner = null;
     private static int auctionItemId = 0;
+    private static int auctionItemDamageValue = 0;
     private static short auctionItemDamage = 0;
     private static int auction_item_byte = 0;
     private static int auctionItemAmount = 0;
@@ -166,14 +167,14 @@ public class AuctionCommand implements CommandExecutor {
                     }
 
                     if (auctionItemAmount >= count) {
-                        auctionItemId = id[0];
+                        
+                        auctionItemId = id[0]; 
                         auction_item_byte = id[1];
                         currentBid = auctionItemStarting;
                         PlayerInventory inventory = player.getInventory();
                         if (auctionCheck(player, inventory, auctionItemId, auction_item_byte, auctionItemAmount, auctionTime, auctionItemStarting)) {
                             isAuction = true;
                             inventory.removeItem(new ItemStack[]{
-
                                     new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte))
                             });
                             final int interval = auctionTime;
@@ -205,7 +206,7 @@ public class AuctionCommand implements CommandExecutor {
                                 }
                             };
                             
-                            plugin.broadcast(ChatColor.GRAY +auctionOwner.getName()+
+                            plugin.broadcast(ChatColor.GOLD +auctionOwner.getName()+
                             		" put up " + auctionItemAmount + " " +
                             		Items.name(auctionItemId, auction_item_byte).toLowerCase() +
                             		" for auction at " + (auctionItemStarting) +
@@ -289,7 +290,7 @@ public class AuctionCommand implements CommandExecutor {
 	            isAuction = false;
 	            auctionTimer.cancel();
 	            if (win) {
-	                plugin.broadcast(ChatColor.GRAY+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+Items.name(auctionItemId, auction_item_byte).toLowerCase());
+	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+Items.name(auctionItemId, auction_item_byte).toLowerCase());
 	                winner.sendMessage(ChatColor.GREEN+"Enjoy your items!");
 	                auctionOwner.sendMessage(ChatColor.GREEN+"Your items have been sold for "+currentBid+".00 Dei!");
 	                iConomy.getAccount(winner.getName()).getHoldings().subtract(currentBid);
@@ -303,6 +304,7 @@ public class AuctionCommand implements CommandExecutor {
 	                    winner.sendMessage("The items have been dropped at your feet");
 	                    winner.getWorld().dropItemNaturally(winner.getLocation(), new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
 	                }
+	                if (iAuctionSettings.isLogging()) { writeToMySQL(true); }
 	            } else {
 	                plugin.broadcast(ChatColor.GRAY+"Auction ended with no bids.");
 	                auctionOwner.sendMessage("Your items have been returned to you!");
@@ -326,10 +328,8 @@ public class AuctionCommand implements CommandExecutor {
 	                    auctionOwner.sendMessage("The items have been dropped at your feet");
 	                    auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(), new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
 	                }
-	            }
-	            
-	            writeToMySQL();
-	            
+	                if (iAuctionSettings.isLogging()) { writeToMySQL(false); }
+	            }    
 	            auctionItemId = 0;
 	            auctionItemAmount = 0;
 	            auctionItemStarting = 0;
@@ -348,7 +348,7 @@ public class AuctionCommand implements CommandExecutor {
 	}
 
 	public void auctionBid(Player player, String msg[]) {
-	    if (iAuction.Permissions.has(player, "auction.bid")) {
+	    if (iAuction.Permissions.has(player, "auction.bid") || player.isOp()) {
 	        if (msg.length == 2 || msg.length == 3) {
 	            if (player != auctionOwner) {
 	                String name = player.getName();
@@ -405,12 +405,16 @@ public class AuctionCommand implements CommandExecutor {
 	}
 
 	   
-	private void writeToMySQL() {
+	private void writeToMySQL(boolean hasWon) {
 	    String sql = "";
-	    sql = ("INSERT INTO "+iAuction.database.tableName("log")+"("+
-                " (`username`, `item_id`, `item_damage`, `item_count`, `win_username`, `win_price`, `auction_time`) " +
-                " VALUES (?,?,?,?,?,?,now()) ");
-	    iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId, auctionItemDamage, auctionItemAmount, winner.getName(), currentBid);
+	    sql = ("INSERT INTO "+iAuction.database.tableName("log")+" "+
+                " (`username`, `item_id`, `item_count`, `win_username`, `win_price`, `auction_time`) " +
+                " VALUES (?,?,?,?,?,now());");
+	    if (hasWon) {
+	        iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId, auctionItemAmount, winner.getName(), currentBid);
+	    } else {
+	        iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId, auctionItemAmount, "none", currentBid);
+	    }
 	}
 	
 	public void warn(Player player, String msg) {

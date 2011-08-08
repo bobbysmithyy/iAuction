@@ -6,4 +6,4 @@ description: Auctions for iConomy plugin for Bukkit Original by Zazara107
 
 commands:
   auction:
-	aliases: [au]
+    aliases: [au]

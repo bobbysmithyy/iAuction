@@ -28,7 +28,8 @@ public class MySQLConnection {
 		
 		// make the connection
 		try {
-		    conn = DriverManager.getConnection(getConnectionString());			
+		    conn = DriverManager.getConnection(getConnectionString());            
+            System.out.println("[iAuction] Connection success!");			
 		} catch (SQLException ex) {
 			dumpSqlException(ex);
 			throw new DataSourceException("[iAuction] Failed to create connection to Mysql database");
@@ -45,7 +46,6 @@ public class MySQLConnection {
 		"`id` int(10) unsigned NOT NULL AUTO_INCREMENT,"+
 		"`username` varchar(80) NOT NULL,"+
 		"`item_id` int(6) NOT NULL,"+
-		"`item_damage` int(6) NOT NULL DEFAULT '0'"+
 		"`item_count` int(6) NOT NULL,"+
 		"`win_username` varchar(80) NOT NULL,"+
 		"`win_price` int(6) NOT NULL,"+

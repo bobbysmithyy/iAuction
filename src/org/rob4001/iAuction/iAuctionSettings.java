@@ -157,18 +157,6 @@ public class iAuctionSettings {
 	public static String getCraftIRCTag() {
 		return getString("auction.CRAFTIRC_TAG");
 	}
-//
-//	public static ChatColor getWarningColor() {
-//		return ChatColor.valueOf(getString("auction.WARNING_COLOR"));
-//	}
-//	
-//	public static ChatColor getAuctionStatusColor() {
-//		return ChatColor.valueOf(getString("auction.STATUS_COLOR"));
-//	}
-//	
-//	public static ChatColor getAuctionTimerColor() {
-//		return ChatColor.valueOf(getString("auction.TIME_COLOR"));
-//	}
 	
 	public static boolean getAntiSnipe() {
 		return getBoolean("auction.ENABLE_ANTISNIPE");
@@ -177,4 +165,8 @@ public class iAuctionSettings {
 	public static int getAntiSnipeValue() {
 		return getInt("auction.ANTISNIPE_VALUE");
 	}
+	
+	public static boolean isLogging() {
+        return getBoolean("auction.LOGGING");
+    }
 }

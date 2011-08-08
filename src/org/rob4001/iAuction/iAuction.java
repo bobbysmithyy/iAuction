@@ -41,7 +41,7 @@ public class iAuction extends JavaPlugin {
     
     public iAuction() {
         AuctionCommand.isAuction = false;
-        ac = new AuctionCommand(this);
+        
     }
 
     public void onEnable() {
@@ -51,7 +51,16 @@ public class iAuction extends JavaPlugin {
         setupItems();
         loadSettings();
         enablePermissions();
+        if (iAuctionSettings.isEnabledHeroChat()) {
+            loadHeroChat();
+        }
+        if (iAuctionSettings.isEnabledCraftIRC()) {
+            loadCraftIRC();
+        }
         getCommand("auction").setExecutor(new AuctionCommand(this));
+        ac = new AuctionCommand(this);
+        database = new MySQLConnection(this);
+        database.createDatabaseTables();
         out("Version "+pdfFile.getVersion()+" Enabled");
     }
 
@@ -112,7 +121,7 @@ public class iAuction extends JavaPlugin {
         }
     }
 
-    public void enableHeroChat() {
+    public void loadHeroChat() {
         Plugin p = server.getPluginManager().getPlugin("HeroChat");
         if (p != null) {
             if (!p.isEnabled())
@@ -130,7 +139,7 @@ public class iAuction extends JavaPlugin {
         }
     }
 
-    public void enableCraftIRC() {
+    public void loadCraftIRC() {
     	Plugin p = server.getPluginManager().getPlugin("CraftIRC");
     	if (p != null) {
     	    try {
