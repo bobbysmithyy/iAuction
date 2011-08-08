@@ -25,25 +25,6 @@ public class iAuctionSettings {
 		}	
 	}
 	
-	// This will read the language entry in the config.yml to attempt to load custom languages
-	// if the file is not found it will load the default from resource
-	public static void loadLanguage (String filepath, String defaultRes) throws IOException {		
-		
-		String defaultName = filepath + FileMgmt.fileSeparator() + getString("language");
-		
-		File file = FileMgmt.CheckYMLexists(defaultName, defaultRes);
-		if (file != null) {
-				
-			// read the (language).yml into memory
-			language = new Configuration(file);
-			language.load();
-			file = null;	
-			
-		}
-	}
-	
-	///////////////////////////////////
-	
 	// Functions to pull data from the config and language files
 
 
@@ -90,7 +71,7 @@ public class iAuctionSettings {
 		if (strArray != null) {
 		for (int ctr=0; ctr < strArray.length; ctr++)
 			if (strArray[ctr] != null)
-				list.add(Integer.parseInt(strArray[ctr]));
+				list.add(Integer.parseInt(strArray[ctr].trim()));
 		}	
 		return list;
 	}
@@ -168,5 +149,31 @@ public class iAuctionSettings {
 	
 	public static boolean isLogging() {
         return getBoolean("auction.LOGGING");
+    }
+	
+    public static int maxAuctionsLevelOne() {
+        return getInt("classes.MAX_AUCTIONS_ONE");
+    }
+    
+    public static int maxAuctionsLevelTwo() {
+        return getInt("classes.MAX_AUCTIONS_TWO");
+    }
+    
+    public static int maxAuctionsLevelThree() {
+        return getInt("classes.MAX_AUCTIONS_THREE");
+    }
+
+    
+    public static String getMySQLClassName() {
+       return getString("classes.MERCHANT_CLASS_NAME");
+    }
+
+   
+    public static String getMySQLDatabaseTable() {
+       return getString("classes.CLASS_TABLE_NAME");
+    }
+
+    public static List<Integer> getRestrictedItems() {
+        return getIntArr("auction.RESTRICTED_ITEMS");
     }
 }

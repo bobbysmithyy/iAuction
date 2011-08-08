@@ -15,9 +15,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
+
 import com.iConomy.iConomy;
 import com.iConomy.system.Account;
 import com.imdeity.utils.ChatTools;
+import com.imdeity.utils.ItemType;
 
 public class AuctionCommand implements CommandExecutor {
 
@@ -40,16 +42,17 @@ public class AuctionCommand implements CommandExecutor {
     private static int auctionItemStarting = 0;
     private static double auctionItemBid = 0;
     private static boolean win = false;
+    private static int level = 0;
     
     private int i;
 	
 	static {
-    	output.add(ChatTools.formatTitle("iAuction"));
+	    output.add(ChatTools.formatTitle("Auction"));
     	output.add(ChatTools.formatCommand("", "/auction", "", "Checks current auction info."));
-    	output.add(ChatTools.formatCommand("Merchant", "/auction", "start [time] [item] [amount] [start price]", "Starts a new auction."));
-    	output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends current auction"));
+        output.add(ChatTools.formatCommand("Merchant", "/auction", "start [time] [item] [amount] [start price]", "Starts a new auction."));
+        output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends current auction"));
     	output.add(ChatTools.formatCommand("", "/auction", "bid [amount]", "Bids on an auction."));
-
+    	output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends your current auction."));
 	}
 	
 	public AuctionCommand(iAuction instance) {
@@ -58,9 +61,10 @@ public class AuctionCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
-
         if (sender instanceof Player) {
         	Player player = (Player) sender;
+        	String lvl = "SELECT `level` FROM `"+iAuctionSettings.getMySQLDatabaseTable()+"` WHERE `username` = '"+player.getName()+"' && `class` = '"+iAuctionSettings.getMySQLClassName()+"';";
+            level = iAuction.database.GetInt(lvl);
         	parseAuctionCommand(player, args);
             return true;
         } else {
@@ -73,13 +77,13 @@ public class AuctionCommand implements CommandExecutor {
 	        if (isAuction) {
                 String out = (ChatColor.GRAY +auctionOwner.getName()+
                         " has " + auctionItemAmount + " " +
-                        Items.name(auctionItemId, auction_item_byte).toLowerCase() +
+                        ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
                         " up for auction at " + auctionItemStarting +
                         ".00 Dei.");
                 if (winner != null) {
                     out = (ChatColor.GRAY +winner.getName()+
                             " is winning the auction of " + auctionItemAmount + " " +
-                            Items.name(auctionItemId, auction_item_byte).toLowerCase() +
+                            ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
                             " at " + currentBid +
                             ".00 Dei.");
                 }
@@ -88,7 +92,7 @@ public class AuctionCommand implements CommandExecutor {
 	          warn(player, "There is no auction running at the moment.");
 	        }
 	    } else if (split[0].equalsIgnoreCase("help") || split[0].equalsIgnoreCase("?")) {
-            for (String line : output)
+	       for (String line : output)
                 player.sendMessage(line);
 	    } else if (split[0].equalsIgnoreCase("start") || split[0].equalsIgnoreCase("s")) {
             auctionStart(player, split);
@@ -208,7 +212,7 @@ public class AuctionCommand implements CommandExecutor {
                             
                             plugin.broadcast(ChatColor.GOLD +auctionOwner.getName()+
                             		" put up " + auctionItemAmount + " " +
-                            		Items.name(auctionItemId, auction_item_byte).toLowerCase() +
+                            		ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
                             		" for auction at " + (auctionItemStarting) +
                             		".00 Dei.");
                            
@@ -231,24 +235,53 @@ public class AuctionCommand implements CommandExecutor {
         }
     }
 	
-	public boolean auctionCheck(Player player, PlayerInventory inventory, int id, int data, int amount, int time, double price) {
+	public boolean auctionCheck(Player player, PlayerInventory inventory, int id, int data, int amount, int time, double price) {	        
+	        String lvl = "";
+	        lvl = "SELECT `level` FROM `"+iAuctionSettings.getMySQLDatabaseTable()+"` WHERE `username` = '"+player.getName()+"' && `class` = '"+iAuctionSettings.getMySQLClassName()+"';";
+	        int level = iAuction.database.GetInt(lvl);
+	        if (!player.isOp()) {
+	            if (level > 0) {
+	                String cnt = "";
+	                cnt = "SELECT COUNT(*) AS count FROM "+iAuction.database.tableName("log")+" WHERE auction_time > (SUBDATE(NOW(), INTERVAL 1 DAY)) && `username` = '"+player.getName()+"';";
+
+	                int count = iAuction.database.GetInt(cnt);
+	                if (level == 1 && count>=iAuctionSettings.maxAuctionsLevelOne()) {
+	                    warn(player, "You can only use the auctions "+iAuctionSettings.maxAuctionsLevelOne()+" times per day for your class. Try again tomorrow.");
+	                    return false;
+	                } else if (level == 2 && count>=iAuctionSettings.maxAuctionsLevelTwo()) {
+	                    warn(player, "You can only use the auctions "+iAuctionSettings.maxAuctionsLevelTwo()+" times per day for your class. Try again tomorrow.");
+	                    return false;
+	                } else if (level == 3 && count>=iAuctionSettings.maxAuctionsLevelThree()) {
+	                    warn(player, "You can only use the auctions "+iAuctionSettings.maxAuctionsLevelThree()+" times per day for your class. Try again tomorrow.");
+	                    return false;
+	                }
+	            } else {
+	                return false;
+	            }
+	        }
 	        if (time > 10) {
 	            ItemStack stacks[] = inventory.getContents();
 	            int size = 0;
 	            for (int i = 0; i < stacks.length; i++)
 	                if (stacks[i] != null && stacks[i].getTypeId() == id && (!Items.isDamageable(id) || stacks[i].getDurability() == 0))
 	                    size += stacks[i].getAmount();
-
+	            List<Integer> restrictions = iAuctionSettings.getRestrictedItems();
+	            for (int i : restrictions) {
+	                if (id == i) {
+	                    warn(player, "Dont be stupid, you cant sell that!");
+	                    return false;
+	                }
+	            }
 	            if (amount <= size) {
 	                if (price >= 0.0D) {
 	                    return true;
 	                } else {
-	                    warn(player, " The starting price has to be at least 0 dei!");
+	                    warn(player, "The starting price has to be at least 0 dei!");
 	                    return false;
 	                }
+	                
 	            } else {
-	                warn(player, "You don't have enough "+Items.name(id, data)+" to do that!");
-	                warn(player, "NOTE: You can't auction damaged tools.");
+	                warn(player, "You don't have enough "+ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName()+" to do that!");
 	                return false;
 	            }
 	        } else {
@@ -259,7 +292,7 @@ public class AuctionCommand implements CommandExecutor {
 
 	public void auctionInfo(Server server, Player player) {
         if (server != null) {
-           plugin.broadcast("Auctioned Item: " + Items.name(auctionItemId, auction_item_byte) + " ["+auctionItemId+"]");
+           plugin.broadcast("Auctioned Item: " + ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName());
            plugin.broadcast("Amount: "+auctionItemAmount);
            plugin.broadcast("Starting Price: " + auctionItemStarting+".00 Dei");
            plugin.broadcast("Owner: "+auctionOwner.getName());
@@ -268,13 +301,14 @@ public class AuctionCommand implements CommandExecutor {
             if (isAuction) {
                 String out = (ChatColor.GRAY +auctionOwner.getName()+
                         " has " + auctionItemAmount + " " +
-                        Items.name(auctionItemId, auction_item_byte).toLowerCase() +
+                        ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
                         " up for auction at " + auctionItemStarting +
                         ".00 Dei.");
+                
                 if (winner != null) {
                     out = (ChatColor.GRAY +winner.getName()+
                             " is winning the auction of " + auctionItemAmount + " " +
-                            Items.name(auctionItemId, auction_item_byte).toLowerCase() +
+                            ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
                             " at " + currentBid +
                             ".00 Dei.");
                 }
@@ -290,7 +324,7 @@ public class AuctionCommand implements CommandExecutor {
 	            isAuction = false;
 	            auctionTimer.cancel();
 	            if (win) {
-	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+Items.name(auctionItemId, auction_item_byte).toLowerCase());
+	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() + " for "+currentBid+".00 Dei.");
 	                winner.sendMessage(ChatColor.GREEN+"Enjoy your items!");
 	                auctionOwner.sendMessage(ChatColor.GREEN+"Your items have been sold for "+currentBid+".00 Dei!");
 	                iConomy.getAccount(winner.getName()).getHoldings().subtract(currentBid);

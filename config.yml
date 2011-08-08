@@ -4,14 +4,22 @@ mysql:
     database_name: kingdoms
     username: root
     password: root
-    database_table_prefix: iAuction_
+    database_table_prefix: auction_
 
 auction:
     maximum_time: 120
     logging: true
-    herochat_enabled: false
-    herochat_channel_name: g
-    craftirc_enabled: false
-    craftirc_tag: all
+    herochat_enabled: true
+    herochat_channel_name: trade
+    craftirc_enabled: true
+    craftirc_tag: irc
     enable_antisnipe: false
     antisnipe_value: 5
+    restricted_items: 19, 46, 92, 344, 354
+
+classes:
+    class_table_name: deity_players
+    merchant_class_name: trader
+    max_auctions_one: 3
+    max_auctions_two: 5
+    max_auctions_three: 7

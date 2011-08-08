@@ -181,8 +181,8 @@ public class iAuction extends JavaPlugin {
 		try {
 			FileMgmt.checkFolders(new String[]{
 					getRootFolder(),
-					getRootFolder() + FileMgmt.fileSeparator() + "settings"});
-			iAuctionSettings.loadConfig(getRootFolder() + FileMgmt.fileSeparator() + "settings" + FileMgmt.fileSeparator() + "config.yml", "/config.yml");
+					getRootFolder() + FileMgmt.fileSeparator() + ""});
+			iAuctionSettings.loadConfig(getRootFolder() + FileMgmt.fileSeparator() + "config.yml", "/config.yml");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
