@@ -123,6 +123,10 @@ public class iAuctionSettings {
 		return getInt("auction.MAXIMUM_TIME");
 	}
 
+	public static int getMinTime() {
+	    return getInt("auction.MINIMUM_TIME");
+	}
+	 
 	public static String getHeroChatChannelName() {
 		return getString("auction.HEROCHAT_CHANNEL_NAME");
 	}
@@ -176,4 +180,6 @@ public class iAuctionSettings {
     public static List<Integer> getRestrictedItems() {
         return getIntArr("auction.RESTRICTED_ITEMS");
     }
+
+   
 }

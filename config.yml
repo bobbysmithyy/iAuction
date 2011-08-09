@@ -8,6 +8,7 @@ mysql:
 
 auction:
     maximum_time: 120
+    minimum_time: 10
     logging: true
     herochat_enabled: true
     herochat_channel_name: trade

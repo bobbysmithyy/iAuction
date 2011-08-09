@@ -32,7 +32,6 @@ public class Items {
                 return Misc.camelToPhrase(item.toString());
             }
         }
-
         return Misc.camelToPhrase(Misc.string(id));
     }
 

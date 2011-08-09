@@ -50,9 +50,8 @@ public class AuctionCommand implements CommandExecutor {
 	    output.add(ChatTools.formatTitle("Auction"));
     	output.add(ChatTools.formatCommand("", "/auction", "", "Checks current auction info."));
         output.add(ChatTools.formatCommand("Merchant", "/auction", "start [time] [item] [amount] [start price]", "Starts a new auction."));
-        output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends current auction"));
+        output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends your current auction."));
     	output.add(ChatTools.formatCommand("", "/auction", "bid [amount]", "Bids on an auction."));
-    	output.add(ChatTools.formatCommand("Merchant", "/auction", "end", "Ends your current auction."));
 	}
 	
 	public AuctionCommand(iAuction instance) {
@@ -77,20 +76,21 @@ public class AuctionCommand implements CommandExecutor {
 	        if (isAuction) {
                 String out = (ChatColor.GRAY +auctionOwner.getName()+
                         " has " + auctionItemAmount + " " +
-                        ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
-                        " up for auction at " + auctionItemStarting +
+                        ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
+                        " up for auction for " + auctionItemStarting +
                         ".00 Dei.");
                 if (winner != null) {
                     out = (ChatColor.GRAY +winner.getName()+
                             " is winning the auction of " + auctionItemAmount + " " +
-                            ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
-                            " at " + currentBid +
+                            ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
+                            " for " + currentBid +
                             ".00 Dei.");
                 }
                 player.sendMessage(out);
 	        } else {
 	          warn(player, "There is no auction running at the moment.");
 	        }
+	        help(player);
 	    } else if (split[0].equalsIgnoreCase("help") || split[0].equalsIgnoreCase("?")) {
 	       for (String line : output)
                 player.sendMessage(line);
@@ -100,8 +100,6 @@ public class AuctionCommand implements CommandExecutor {
             auctionBid(player, split);
 	    } else if (split[0].equalsIgnoreCase("end") || split[0].equalsIgnoreCase("e")) {
             auctionStop(player);
-	    } else if (split[0].equalsIgnoreCase("info") || split[0].equalsIgnoreCase("i")) {
-            auctionInfo(null, player);
 	    } else {
             
         }
@@ -127,11 +125,10 @@ public class AuctionCommand implements CommandExecutor {
                         warn(player, ("Too long! Maximum time is "+maxTime+"."));
                         return;
                     }
-                    int id[] = {
-                            -1, 0
-                    };
+                    int id[] = {-1, 0};
                     int count = 0;
                     try {
+                        
                         id = Items.validate(msg[2]);
                     } catch (Exception e) {
                         warn(player, "Invalid item.");
@@ -171,9 +168,12 @@ public class AuctionCommand implements CommandExecutor {
                     }
 
                     if (auctionItemAmount >= count) {
-                        
-                        auctionItemId = id[0]; 
-                        auction_item_byte = id[1];
+                        try {
+                            auctionItemId = id[0]; 
+                            auction_item_byte = id[1];
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
                         currentBid = auctionItemStarting;
                         PlayerInventory inventory = player.getInventory();
                         if (auctionCheck(player, inventory, auctionItemId, auction_item_byte, auctionItemAmount, auctionTime, auctionItemStarting)) {
@@ -187,23 +187,19 @@ public class AuctionCommand implements CommandExecutor {
 
                             auctionTT = new TimerTask() {
 
-                                double half = java.lang.Math.floor(i / 2);
-
+                                double half = Math.floor(i / 2);
+                                double quarter = Math.floor(i / 4);
+                                double eighth = Math.floor(i / 8);
+                                
                                 @Override
                                 public void run() {
-                                    if (half <= 10) {
-                                        if (i == interval || i == 10 || i == 3 || i == 2) {
-                                            plugin.broadcast((ChatColor.GRAY + "" + i + " seconds left to bid!"));
-                                        }
-                                    } else {
-                                        if (i == interval || i == half || i == 10 || i == 3 || i == 2) {
+                                    if (i>0) {
+                                        if (i == 1) {
+                                            plugin.broadcast(ChatColor.GRAY + "" + i + " second left to bid!");
+                                        } else if (i == interval || i == half || i == quarter || i == eighth || i == 3 || i == 2) {
                                         	plugin.broadcast(ChatColor.GRAY + "" + i + " seconds left to bid!");
                                         }
-                                    }
-                                    if (i == 1) {
-                                    	plugin.broadcast(ChatColor.GRAY + "" + i + " seconds left to bid!");
-                                    }
-                                    if (i == 0) {
+                                    } else {
                                         auctionStop(timerPlayer);
                                     }
                                     i--;
@@ -211,10 +207,10 @@ public class AuctionCommand implements CommandExecutor {
                             };
                             
                             plugin.broadcast(ChatColor.GOLD +auctionOwner.getName()+
-                            		" put up " + auctionItemAmount + " " +
-                            		ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
-                            		" for auction at " + (auctionItemStarting) +
-                            		".00 Dei.");
+                                    " put up " + auctionItemAmount + " " +
+                                    ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
+                                    " up for auction for " + auctionItemStarting +
+                                    ".00 Dei.");
                            
                             auctionTimer = new Timer();
                             auctionTimer.scheduleAtFixedRate(auctionTT, 0L, 1000L);
@@ -231,7 +227,7 @@ public class AuctionCommand implements CommandExecutor {
                 warn(player, "There is already an auction running!");
             }
         } else {
-            warn(player, "You don't have perrmisions to start an auction!");
+            warn(player, "You don't have permission to start an auction!");
         }
     }
 	
@@ -259,7 +255,7 @@ public class AuctionCommand implements CommandExecutor {
 	                return false;
 	            }
 	        }
-	        if (time > 10) {
+	        if (time > iAuctionSettings.getMinTime()) {
 	            ItemStack stacks[] = inventory.getContents();
 	            int size = 0;
 	            for (int i = 0; i < stacks.length; i++)
@@ -276,23 +272,23 @@ public class AuctionCommand implements CommandExecutor {
 	                if (price >= 0.0D) {
 	                    return true;
 	                } else {
-	                    warn(player, "The starting price has to be at least 0 dei!");
+	                    warn(player, "The starting price has to be at least 0 Dei!");
 	                    return false;
 	                }
 	                
 	            } else {
-	                warn(player, "You don't have enough "+ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName()+" to do that!");
+	                warn(player, "You don't have enough "+ItemType.getFromID(auctionItemId, auction_item_byte).getName()+" to do that!");
 	                return false;
 	            }
 	        } else {
-	            warn(player, "Time must be longer than 10 seconds!");
+	            warn(player, "Time must be longer than "+iAuctionSettings.getMinTime()+" seconds!");
 	            return false;
 	        }
 	    }
 
 	public void auctionInfo(Server server, Player player) {
         if (server != null) {
-           plugin.broadcast("Auctioned Item: " + ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName());
+           plugin.broadcast("Auctioned Item: " + ItemType.getFromID(auctionItemId, auction_item_byte).getName());
            plugin.broadcast("Amount: "+auctionItemAmount);
            plugin.broadcast("Starting Price: " + auctionItemStarting+".00 Dei");
            plugin.broadcast("Owner: "+auctionOwner.getName());
@@ -301,14 +297,14 @@ public class AuctionCommand implements CommandExecutor {
             if (isAuction) {
                 String out = (ChatColor.GRAY +auctionOwner.getName()+
                         " has " + auctionItemAmount + " " +
-                        ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
+                        ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
                         " up for auction at " + auctionItemStarting +
                         ".00 Dei.");
                 
                 if (winner != null) {
                     out = (ChatColor.GRAY +winner.getName()+
                             " is winning the auction of " + auctionItemAmount + " " +
-                            ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() +
+                            ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
                             " at " + currentBid +
                             ".00 Dei.");
                 }
@@ -324,7 +320,7 @@ public class AuctionCommand implements CommandExecutor {
 	            isAuction = false;
 	            auctionTimer.cancel();
 	            if (win) {
-	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+ItemType.parseItemString(Items.name(auctionItemId, auction_item_byte)).getName() + " for "+currentBid+".00 Dei.");
+	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+ItemType.getFromID(auctionItemId, auction_item_byte).getName() + " for "+currentBid+".00 Dei.");
 	                winner.sendMessage(ChatColor.GREEN+"Enjoy your items!");
 	                auctionOwner.sendMessage(ChatColor.GREEN+"Your items have been sold for "+currentBid+".00 Dei!");
 	                iConomy.getAccount(winner.getName()).getHoldings().subtract(currentBid);
@@ -437,7 +433,6 @@ public class AuctionCommand implements CommandExecutor {
 	        warn(player, "You don't have perrmisions to bid an auction!");
 	    }
 	}
-
 	   
 	private void writeToMySQL(boolean hasWon) {
 	    String sql = "";
@@ -454,9 +449,8 @@ public class AuctionCommand implements CommandExecutor {
 	public void warn(Player player, String msg) {
 	    player.sendMessage(ChatColor.DARK_GRAY+"[Auction] " +ChatColor.RED + msg);
 	}
-
 	   
 	public void help(Player player) {
-	    player.sendMessage(ChatColor.YELLOW+"Use \"/auction ?\" to recieve help.");
+	    player.sendMessage(ChatColor.DARK_GRAY+"[Auction] " +ChatColor.YELLOW+"Use \"/auction ?\" to recieve help.");
 	}
 }
