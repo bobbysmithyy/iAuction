@@ -1,8 +1,8 @@
 name: iAuction
 main: org.rob4001.iAuction.iAuction
-version: 3.6
+version: 3.7
 author: Rob4001 forked by vanZeben
-description: Auctions for iConomy plugin for Bukkit Original by Zazara107
+description: Auctions for iConomy plugin for Bukkit
 
 commands:
   auction:

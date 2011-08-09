@@ -3,7 +3,10 @@ package org.rob4001.iAuction;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  * Copyright (C) 2011  Nijikokun <nijikokun@gmail.com>
@@ -281,5 +284,52 @@ public class Misc {
             (new File(name)).createNewFile();
         } catch (IOException ex) {
         }
+    }
+    
+    public static boolean hasSpace(Player player, int needed) {
+        PlayerInventory inventory = player.getInventory();
+        ItemStack[] items = inventory.getContents();
+        int space = 36;
+
+        for (ItemStack item : items) {
+            if ((item != null)) {
+                space--;
+            }
+        }
+        
+        System.out.println(space+"|"+needed);
+         if (space==0) {
+            return false;
+        } else if (space >= needed) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+    
+    public static boolean isDamageable(int id) {
+        //tools (including lighters and fishing poles) and armour
+        if (id >= 256 && id <= 259) return true;
+        if (id >= 267 && id <= 279) return true;
+        if (id >= 283 && id <= 286) return true;
+        if (id >= 290 && id <= 294) return true;
+        if (id >= 298 && id <= 317) return true;
+        if (id == 346) return true;
+        return false;
+    }
+
+    public static boolean isStackable(int id) {
+        // false for tools (including buckets, bow, and lighters, but not fishing poles), food, armour, minecarts, boats, doors, and signs.
+        if (id >= 256 && id <= 261) return false;
+        if (id >= 267 && id <= 279) return false;
+        if (id >= 282 && id <= 286) return false;
+        if (id >= 290 && id <= 294) return false;
+        if (id >= 297 && id <= 317) return false;
+        if (id >= 322 && id <= 330) return false;
+        if (id == 319 || id == 320 || id == 349 || id == 350) return false;
+        if (id == 333 || id == 335 || id == 343 || id == 342) return false;
+        if (id == 354 || id == 2256 || id == 2257) return false;
+        return true;
     }
 }

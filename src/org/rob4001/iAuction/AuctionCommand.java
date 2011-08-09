@@ -35,15 +35,12 @@ public class AuctionCommand implements CommandExecutor {
     public static boolean isAuction = false;
     public static Player winner = null;
     private static int auctionItemId = 0;
-    private static int auctionItemDamageValue = 0;
     private static short auctionItemDamage = 0;
-    private static int auction_item_byte = 0;
+    private static byte auction_item_byte = 0;
     private static int auctionItemAmount = 0;
     private static int auctionItemStarting = 0;
     private static double auctionItemBid = 0;
     private static boolean win = false;
-    private static int level = 0;
-    
     private int i;
 	
 	static {
@@ -62,8 +59,6 @@ public class AuctionCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
         if (sender instanceof Player) {
         	Player player = (Player) sender;
-        	String lvl = "SELECT `level` FROM `"+iAuctionSettings.getMySQLDatabaseTable()+"` WHERE `username` = '"+player.getName()+"' && `class` = '"+iAuctionSettings.getMySQLClassName()+"';";
-            level = iAuction.database.GetInt(lvl);
         	parseAuctionCommand(player, args);
             return true;
         } else {
@@ -127,13 +122,19 @@ public class AuctionCommand implements CommandExecutor {
                     }
                     int id[] = {-1, 0};
                     int count = 0;
-                    try {
                         
-                        id = Items.validate(msg[2]);
-                    } catch (Exception e) {
-                        warn(player, "Invalid item.");
-                        return;
+                    if (msg[2].contains(":") ) {
+                        String[] split = msg[2].split(":");
+                        id[0] = Integer.valueOf(split[0]);
+                        id[1] = Integer.valueOf(split[1]);
+                    } else if (msg[2].contains(";") ) {
+                        String[] split = msg[2].split(";");
+                        id[0] = Integer.valueOf(split[0]);
+                        id[1] = Integer.valueOf(split[1]);
+                    } else {
+                        id[0] = Integer.valueOf(msg[2]);
                     }
+                    
                     if (id[0] == -1 || id[0] == 0) {
                         warn(player, "Invalid item.");
                         return;
@@ -170,7 +171,7 @@ public class AuctionCommand implements CommandExecutor {
                     if (auctionItemAmount >= count) {
                         try {
                             auctionItemId = id[0]; 
-                            auction_item_byte = id[1];
+                            auction_item_byte = Byte.valueOf(""+id[1]);
                         } catch(Exception ex) {
                             ex.printStackTrace();
                         }
@@ -179,8 +180,7 @@ public class AuctionCommand implements CommandExecutor {
                         if (auctionCheck(player, inventory, auctionItemId, auction_item_byte, auctionItemAmount, auctionTime, auctionItemStarting)) {
                             isAuction = true;
                             inventory.removeItem(new ItemStack[]{
-                                    new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte))
-                            });
+                                    new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte) });
                             final int interval = auctionTime;
                             
                             i = interval;
@@ -232,6 +232,7 @@ public class AuctionCommand implements CommandExecutor {
     }
 	
 	public boolean auctionCheck(Player player, PlayerInventory inventory, int id, int data, int amount, int time, double price) {	        
+	    if (iAuctionSettings.isLogging()) {
 	        String lvl = "";
 	        lvl = "SELECT `level` FROM `"+iAuctionSettings.getMySQLDatabaseTable()+"` WHERE `username` = '"+player.getName()+"' && `class` = '"+iAuctionSettings.getMySQLClassName()+"';";
 	        int level = iAuction.database.GetInt(lvl);
@@ -255,36 +256,36 @@ public class AuctionCommand implements CommandExecutor {
 	                return false;
 	            }
 	        }
-	        if (time > iAuctionSettings.getMinTime()) {
-	            ItemStack stacks[] = inventory.getContents();
-	            int size = 0;
-	            for (int i = 0; i < stacks.length; i++)
-	                if (stacks[i] != null && stacks[i].getTypeId() == id && (!Items.isDamageable(id) || stacks[i].getDurability() == 0))
-	                    size += stacks[i].getAmount();
-	            List<Integer> restrictions = iAuctionSettings.getRestrictedItems();
-	            for (int i : restrictions) {
-	                if (id == i) {
-	                    warn(player, "Dont be stupid, you cant sell that!");
-	                    return false;
-	                }
-	            }
-	            if (amount <= size) {
-	                if (price >= 0.0D) {
-	                    return true;
-	                } else {
-	                    warn(player, "The starting price has to be at least 0 Dei!");
-	                    return false;
-	                }
-	                
-	            } else {
-	                warn(player, "You don't have enough "+ItemType.getFromID(auctionItemId, auction_item_byte).getName()+" to do that!");
+	    }
+	    if (time > iAuctionSettings.getMinTime()) {
+	        ItemStack stacks[] = inventory.getContents();
+	        int size = 0;
+	        for (int i = 0; i < stacks.length; i++)
+	            if (stacks[i] != null && stacks[i].getTypeId() == id && (!Misc.isDamageable(id) || stacks[i].getDurability() == 0))
+	                size += stacks[i].getAmount();
+	        List<Integer> restrictions = iAuctionSettings.getRestrictedItems();
+	        for (int i : restrictions) {
+	            if (id == i) {
+	                warn(player, "Dont be stupid, you cant sell that!");
 	                return false;
 	            }
+	        }
+	        if (amount <= size) {
+	            if (price >= 0.0D) {
+	                return true;
+	            } else {
+	                warn(player, "The starting price has to be at least 0 Dei!");
+	                return false;
+	            } 
 	        } else {
-	            warn(player, "Time must be longer than "+iAuctionSettings.getMinTime()+" seconds!");
+	            warn(player, "You don't have enough "+ItemType.getFromID(auctionItemId, auction_item_byte).getName()+" to do that!");
 	            return false;
 	        }
+	    } else {
+	        warn(player, "Time must be longer than "+iAuctionSettings.getMinTime()+" seconds!");
+	        return false;
 	    }
+	}
 
 	public void auctionInfo(Server server, Player player) {
         if (server != null) {
@@ -317,46 +318,71 @@ public class AuctionCommand implements CommandExecutor {
 	public void auctionStop(Player player) {
 	    if (iAuction.Permissions.has(player, "auction.end") || player == auctionOwner || player.isOp()) {
 	        if (isAuction) {
-	            isAuction = false;
 	            auctionTimer.cancel();
+	            int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
 	            if (win) {
 	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+ItemType.getFromID(auctionItemId, auction_item_byte).getName() + " for "+currentBid+".00 Dei.");
 	                winner.sendMessage(ChatColor.GREEN+"Enjoy your items!");
 	                auctionOwner.sendMessage(ChatColor.GREEN+"Your items have been sold for "+currentBid+".00 Dei!");
 	                iConomy.getAccount(winner.getName()).getHoldings().subtract(currentBid);
 	                iConomy.getAccount(auctionOwner.getName()).getHoldings().add(currentBid);
-	                if (Items.hasSpace(winner, auctionItemAmount)) {
-	                    winner.getInventory().addItem(new ItemStack[]{
-	                            new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte))
-	                    });
-	                } else {
-	                    winner.sendMessage("You do not have enough Inventory space!");
-	                    winner.sendMessage("The items have been dropped at your feet");
-	                    winner.getWorld().dropItemNaturally(winner.getLocation(), new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
-	                }
+	                int remainder = auctionItemAmount % mat;
+                    int stacks = auctionItemAmount / mat;
+                    ArrayList<ItemStack> it = new ArrayList<ItemStack>();
+                    if (auctionItemAmount >= mat) {
+                        it = new ArrayList<ItemStack>();
+                        for (i = 0; i < stacks; i++) {
+                            it.add(new ItemStack(auctionItemId, mat, auctionItemDamage,auction_item_byte));
+                        }
+                        it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                    } else {
+                        it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte));
+                    }
+                    
+                    if (Misc.hasSpace(auctionOwner, stacks)) {
+                        
+                        for (ItemStack i : it) {
+                            auctionOwner.getInventory().addItem(i);
+                        }
+                        
+                    } else {
+                        auctionOwner.sendMessage("You do not have enough Inventory space!");
+                        auctionOwner.sendMessage("The items have been dropped at your feet");
+                        for (ItemStack i : it) {
+                            auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(), i);
+                        }
+                    }
 	                if (iAuctionSettings.isLogging()) { writeToMySQL(true); }
 	            } else {
 	                plugin.broadcast(ChatColor.GRAY+"Auction ended with no bids.");
 	                auctionOwner.sendMessage("Your items have been returned to you!");
-	                if (Items.hasSpace(auctionOwner, auctionItemAmount)) {
-	                    ItemStack[] itemss;
-	                    if (auctionItemAmount > Material.getMaterial(auctionItemId).getMaxStackSize()) {
-	                        ArrayList<ItemStack> it = new ArrayList<ItemStack>();
-	                        int remainder = auctionItemAmount % Material.getMaterial(auctionItemId).getMaxStackSize();
-	                        it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
-	                        int stacks = auctionItemAmount - remainder;
-	                        for (i = 1; i <= stacks; i++) {
-	                            it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
-	                        }
-	                        itemss = (ItemStack[]) it.toArray();
-	                    } else {
-	                        itemss = new ItemStack[]{new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte))};
+	               
+	                int remainder = auctionItemAmount % mat;
+                    int stacks = auctionItemAmount / mat;
+	                
+                    ArrayList<ItemStack> it = new ArrayList<ItemStack>();
+                    if (auctionItemAmount >= mat) {
+                        it = new ArrayList<ItemStack>();
+                        for (i = 0; i < stacks; i++) {
+                            it.add(new ItemStack(auctionItemId, mat, auctionItemDamage,auction_item_byte));
+                        }
+                        it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                    } else {
+                        it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte));
+                    }
+                    
+                    if (Misc.hasSpace(auctionOwner, stacks)) {
+	                    
+	                    for (ItemStack i : it) {
+	                        auctionOwner.getInventory().addItem(i);
 	                    }
-	                    auctionOwner.getInventory().addItem(itemss);
+	                    
 	                } else {
 	                    auctionOwner.sendMessage("You do not have enough Inventory space!");
 	                    auctionOwner.sendMessage("The items have been dropped at your feet");
-	                    auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(), new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, Byte.valueOf((byte) auction_item_byte)));
+	                    for (ItemStack i : it) {
+	                        auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(), i);
+	                    }
 	                }
 	                if (iAuctionSettings.isLogging()) { writeToMySQL(false); }
 	            }    
@@ -367,6 +393,7 @@ public class AuctionCommand implements CommandExecutor {
 	            auctionItemBid = 0;
 	            winner = null;
 	            auctionOwner = null;
+	            isAuction = false;
 	            win = false;
 	        } else {
 	            warn(player, "No auctions in session at the moment!");
@@ -453,4 +480,7 @@ public class AuctionCommand implements CommandExecutor {
 	public void help(Player player) {
 	    player.sendMessage(ChatColor.DARK_GRAY+"[Auction] " +ChatColor.YELLOW+"Use \"/auction ?\" to recieve help.");
 	}
+	
+	
+    
 }

@@ -51,16 +51,16 @@ public class iAuction extends JavaPlugin {
         setupItems();
         loadSettings();
         enablePermissions();
-        if (iAuctionSettings.isEnabledHeroChat()) {
+        if (iAuctionSettings.isEnabledHeroChat()) 
             loadHeroChat();
-        }
-        if (iAuctionSettings.isEnabledCraftIRC()) {
+        if (iAuctionSettings.isEnabledCraftIRC()) 
             loadCraftIRC();
-        }
         getCommand("auction").setExecutor(new AuctionCommand(this));
         ac = new AuctionCommand(this);
-        database = new MySQLConnection(this);
-        database.createDatabaseTables();
+        if (iAuctionSettings.isLogging()) {
+            database = new MySQLConnection(this);
+            database.createDatabaseTables();
+        }
         out("Version "+pdfFile.getVersion()+" Enabled");
     }
 
