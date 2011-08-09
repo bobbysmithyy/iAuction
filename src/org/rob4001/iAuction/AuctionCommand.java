@@ -69,16 +69,16 @@ public class AuctionCommand implements CommandExecutor {
 	private void parseAuctionCommand(Player player, String[] split) {
 	    if (split.length == 0) {
 	        if (isAuction) {
-                String out = (ChatColor.GRAY +auctionOwner.getName()+
-                        " has " + auctionItemAmount + " " +
+                String out = (ChatColor.WHITE +auctionOwner.getName()+
+                        ChatColor.GRAY +" has " + ChatColor.YELLOW +auctionItemAmount + " " +
                         ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
-                        " up for auction for " + auctionItemStarting +
+                        ChatColor.GRAY +" up for auction for " + ChatColor.YELLOW +auctionItemStarting +
                         ".00 Dei.");
                 if (winner != null) {
-                    out = (ChatColor.GRAY +winner.getName()+
-                            " is winning the auction of " + auctionItemAmount + " " +
+                    out = (ChatColor.WHITE +winner.getName()+
+                            ChatColor.GRAY +" is winning the auction of " + ChatColor.YELLOW +auctionItemAmount + " " +
                             ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
-                            " for " + currentBid +
+                            ChatColor.GRAY +" for " + ChatColor.YELLOW + currentBid +
                             ".00 Dei.");
                 }
                 player.sendMessage(out);
@@ -123,16 +123,21 @@ public class AuctionCommand implements CommandExecutor {
                     int id[] = {-1, 0};
                     int count = 0;
                         
-                    if (msg[2].contains(":") ) {
-                        String[] split = msg[2].split(":");
-                        id[0] = Integer.valueOf(split[0]);
-                        id[1] = Integer.valueOf(split[1]);
-                    } else if (msg[2].contains(";") ) {
-                        String[] split = msg[2].split(";");
-                        id[0] = Integer.valueOf(split[0]);
-                        id[1] = Integer.valueOf(split[1]);
-                    } else {
-                        id[0] = Integer.valueOf(msg[2]);
+                    try {  
+                        if (msg[2].contains(":") ) {
+                            String[] split = msg[2].split(":");
+                            id[0] = Integer.valueOf(split[0]);
+                            id[1] = Integer.valueOf(split[1]);
+                        } else if (msg[2].contains(";") ) {
+                            String[] split = msg[2].split(";");
+                            id[0] = Integer.valueOf(split[0]);
+                            id[1] = Integer.valueOf(split[1]);
+                        } else {
+                            id[0] = Integer.valueOf(msg[2]);
+                        }
+                    } catch (Exception ex) {
+                        warn(player, ("Item has to be an ID number"));
+                        return;
                     }
                     
                     if (id[0] == -1 || id[0] == 0) {
@@ -206,10 +211,10 @@ public class AuctionCommand implements CommandExecutor {
                                 }
                             };
                             
-                            plugin.broadcast(ChatColor.GOLD +auctionOwner.getName()+
-                                    " put up " + auctionItemAmount + " " +
+                            plugin.broadcast(ChatColor.WHITE +auctionOwner.getName()+
+                                    ChatColor.GRAY +" put " + ChatColor.YELLOW +auctionItemAmount + " " +
                                     ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
-                                    " up for auction for " + auctionItemStarting +
+                                    ChatColor.GRAY +" up for auction for " + ChatColor.YELLOW +auctionItemStarting +
                                     ".00 Dei.");
                            
                             auctionTimer = new Timer();
@@ -253,6 +258,7 @@ public class AuctionCommand implements CommandExecutor {
 	                    return false;
 	                }
 	            } else {
+	                warn(player, ("Your not a Merchant!"));
 	                return false;
 	            }
 	        }
@@ -296,17 +302,16 @@ public class AuctionCommand implements CommandExecutor {
        }
         if (player != null)
             if (isAuction) {
-                String out = (ChatColor.GRAY +auctionOwner.getName()+
-                        " has " + auctionItemAmount + " " +
+                String out = (ChatColor.WHITE +auctionOwner.getName()+
+                        ChatColor.GRAY +" has " + ChatColor.YELLOW +auctionItemAmount + " " +
                         ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
-                        " up for auction at " + auctionItemStarting +
+                        ChatColor.GRAY +" up for auction for " + ChatColor.YELLOW +auctionItemStarting +
                         ".00 Dei.");
-                
                 if (winner != null) {
-                    out = (ChatColor.GRAY +winner.getName()+
-                            " is winning the auction of " + auctionItemAmount + " " +
+                    out = (ChatColor.WHITE +winner.getName()+
+                            ChatColor.GRAY +" is winning the auction of " + ChatColor.YELLOW +auctionItemAmount + " " +
                             ItemType.getFromID(auctionItemId, auction_item_byte).getName() +
-                            " at " + currentBid +
+                            ChatColor.GRAY +" for " + ChatColor.YELLOW + currentBid+
                             ".00 Dei.");
                 }
                 player.sendMessage(out);
@@ -321,7 +326,7 @@ public class AuctionCommand implements CommandExecutor {
 	            auctionTimer.cancel();
 	            int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
 	            if (win) {
-	                plugin.broadcast(ChatColor.GOLD+"Auction Ended - "+winner.getName()+" won "+auctionItemAmount+" "+ItemType.getFromID(auctionItemId, auction_item_byte).getName() + " for "+currentBid+".00 Dei.");
+	                plugin.broadcast(ChatColor.GREEN+"Auction Ended - "+ChatColor.WHITE+winner.getName()+ChatColor.GRAY+" won "+ChatColor.YELLOW+auctionItemAmount+" "+ItemType.getFromID(auctionItemId, auction_item_byte).getName() + ChatColor.GRAY+" for "+ChatColor.YELLOW+currentBid+".00 Dei.");
 	                winner.sendMessage(ChatColor.GREEN+"Enjoy your items!");
 	                auctionOwner.sendMessage(ChatColor.GREEN+"Your items have been sold for "+currentBid+".00 Dei!");
 	                iConomy.getAccount(winner.getName()).getHoldings().subtract(currentBid);
