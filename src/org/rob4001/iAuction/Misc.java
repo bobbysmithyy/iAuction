@@ -297,7 +297,6 @@ public class Misc {
             }
         }
         
-        System.out.println(space+"|"+needed);
          if (space==0) {
             return false;
         } else if (space >= needed) {
