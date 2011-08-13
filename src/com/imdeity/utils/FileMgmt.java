@@ -37,7 +37,6 @@ public class FileMgmt {
 		return System.getProperty("file.separator");
 	}
 	
-	
 	// http://www.java-tips.org/java-se-tips/java.io/how-to-copy-a-directory-from-one-location-to-another-loc.html
 	public static void copyDirectory(File sourceLocation , File targetLocation) throws IOException {
 		if (sourceLocation.isDirectory()) {
@@ -141,7 +140,6 @@ public class FileMgmt {
 		    return false;
 		}
 	}
-
 
 	// move a file to a sub directory
 	public static void moveFile(File sourceFile , String targetLocation) throws IOException {

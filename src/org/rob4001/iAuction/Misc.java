@@ -3,7 +3,6 @@ package org.rob4001.iAuction;
 import java.io.File;
 import java.io.IOException;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;

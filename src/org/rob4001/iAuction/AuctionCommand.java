@@ -344,17 +344,17 @@ public class AuctionCommand implements CommandExecutor {
                         it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte));
                     }
                     
-                    if (Misc.hasSpace(auctionOwner, stacks)) {
+                    if (Misc.hasSpace(winner, stacks)) {
                         
                         for (ItemStack i : it) {
-                            auctionOwner.getInventory().addItem(i);
+                            winner.getInventory().addItem(i);
                         }
                         
                     } else {
-                        auctionOwner.sendMessage("You do not have enough Inventory space!");
-                        auctionOwner.sendMessage("The items have been dropped at your feet");
+                        winner.sendMessage("You do not have enough Inventory space!");
+                        winner.sendMessage("The items have been dropped at your feet");
                         for (ItemStack i : it) {
-                            auctionOwner.getWorld().dropItemNaturally(auctionOwner.getLocation(), i);
+                            winner.getWorld().dropItemNaturally(winner.getLocation(), i);
                         }
                     }
 	                if (iAuctionSettings.isLogging()) { writeToMySQL(true); }
