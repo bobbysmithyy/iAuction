@@ -339,7 +339,9 @@ public class AuctionCommand implements CommandExecutor {
                         for (i = 0; i < stacks; i++) {
                             it.add(new ItemStack(auctionItemId, mat, auctionItemDamage,auction_item_byte));
                         }
-                        it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                        if (remainder > 0) {
+                            it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                        }
                     } else {
                         it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte));
                     }
@@ -371,7 +373,9 @@ public class AuctionCommand implements CommandExecutor {
                         for (i = 0; i < stacks; i++) {
                             it.add(new ItemStack(auctionItemId, mat, auctionItemDamage,auction_item_byte));
                         }
-                        it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                        if (remainder > 0) {
+                            it.add(new ItemStack(auctionItemId, remainder, auctionItemDamage, auction_item_byte));
+                        }
                     } else {
                         it.add(new ItemStack(auctionItemId, auctionItemAmount, auctionItemDamage, auction_item_byte));
                     }
@@ -411,39 +415,29 @@ public class AuctionCommand implements CommandExecutor {
 
 	public void auctionBid(Player player, String msg[]) {
 	    if (iAuction.Permissions.has(player, "auction.bid") || player.isOp()) {
-	        if (msg.length == 2 || msg.length == 3) {
+	        if (msg.length == 2) {
 	            if (player != auctionOwner) {
 	                String name = player.getName();
 	                Account acc = iConomy.getAccount(name);
 	                int bid;
-	                int sbid;
 	                try {
 	                    bid = Integer.parseInt(msg[1]);
-	                    if (msg.length == 2)
-	                        sbid = 0;
-	                    else
-	                        sbid = Integer.parseInt(msg[2]);
 	                } catch (Exception ex) {
 	                    warn(player, " Invalid syntax.");
 	                    help(player);
 	                    return;
 	                }
-	                if (bid <= acc.getHoldings().balance() && sbid <= acc.getHoldings().balance()) {
+	                if (bid <= acc.getHoldings().balance()) {
 	                    if (isAuction) {
 	                        if (bid > currentBid) {
 	                            win = true;
 	                            if (bid > auctionItemBid) {
 	                                currentBid = bid;
-	                                auctionItemBid = sbid;
 	                                winner = player;
 	                                plugin.broadcast("Bid raised to "+bid+".00 Dei by "+player.getName());
-	                                if (iAuctionSettings.getAntiSnipe()) i += iAuctionSettings.getAntiSnipeValue();
-	                            } else {
-	                                player.sendMessage("You have been outbid by "+winner.getName()+"'s secret bid!");
-	                                plugin.broadcast("Bid raised! Currently stands at: "+(bid + 1.0D)+".00 Dei!");
-	                                currentBid = bid + 1;
-	                            }
-
+	                                if (iAuctionSettings.getAntiSnipe()) 
+	                                    i += iAuctionSettings.getAntiSnipeValue();
+	                            } 
 	                        } else {
 	                            warn(player, "Your bid was too low.");
 	                        }
