@@ -144,6 +144,7 @@ public class AuctionCommand implements CommandExecutor {
                         warn(player, "Invalid item.");
                         return;
                     }
+                    boolean falseItem = false;
                     ItemStack aitemstack[];
                     int k = (aitemstack = player.getInventory().getContents()).length;
                     for (int i = 0; i < k; i++) {
@@ -151,14 +152,17 @@ public class AuctionCommand implements CommandExecutor {
                         if (item != null && item.getTypeId() == id[0]) {
                             MaterialData data = item.getData();
                             if (id[1] != 0) {
-                                if (data.getData() == (byte) id[1])
-                                    auctionItemDamage = item.getDurability();
-                            } else {
-                                auctionItemDamage = item.getDurability();
+                                if (data.getData() == Byte.valueOf(""+id[1])) {
+                                    auction_item_byte = Byte.valueOf(""+id[1]);
+                                } else {
+                                    falseItem = true;
+                                }
+                                
                             }
                         }
                     }
-
+                    
+                    
                     k = (aitemstack = player.getInventory().getContents()).length;
                     for (int j = 0; j < k; j++) {
                         ItemStack item = aitemstack[j];
@@ -167,16 +171,13 @@ public class AuctionCommand implements CommandExecutor {
                             if (id[1] != 0) {
                                 if (data.getData() == (byte) id[1] && item.getDurability() == auctionItemDamage)
                                     count++;
-                            } else if (item.getDurability() == auctionItemDamage)
-                                count++;
+                            }
                         }
-                        count = 1;
                     }
 
-                    if (auctionItemAmount >= count) {
+                    if (auctionItemAmount >= count && !falseItem) {
                         try {
                             auctionItemId = id[0]; 
-                            auction_item_byte = Byte.valueOf(""+id[1]);
                         } catch(Exception ex) {
                             ex.printStackTrace();
                         }
@@ -222,7 +223,7 @@ public class AuctionCommand implements CommandExecutor {
 
                         }
                     } else {
-                        warn(player, "Sorry but you have only "+count+" of that item.");
+                        warn(player, "You don't have enough "+ItemType.getFromID(id[0], id[1]).getName()+" to do that!");
                     }
                 } else {
                     warn(player, "Invalid syntax.");
