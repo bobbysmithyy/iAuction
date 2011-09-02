@@ -6,7 +6,6 @@
 package org.rob4001.iAuction;
 
 import com.herocraftonline.dthielke.herochat.HeroChat;
-import com.ensifera.animosity.craftirc.CraftIRC;
 import com.herocraftonline.dthielke.herochat.channels.Channel;
 import com.herocraftonline.dthielke.herochat.channels.ChannelManager;
 
@@ -37,7 +36,6 @@ public class iAuction extends JavaPlugin {
     public static iProperty Item;
     public static HashMap<String, String> items;
     public Channel c;
-    public CraftIRC craftIRC;
     
     public iAuction() {
         AuctionCommand.isAuction = false;
@@ -53,8 +51,6 @@ public class iAuction extends JavaPlugin {
         enablePermissions();
         if (iAuctionSettings.isEnabledHeroChat()) 
             loadHeroChat();
-        if (iAuctionSettings.isEnabledCraftIRC()) 
-            loadCraftIRC();
         getCommand("auction").setExecutor(new AuctionCommand(this));
         ac = new AuctionCommand(this);
         if (iAuctionSettings.isLogging()) {
@@ -139,29 +135,12 @@ public class iAuction extends JavaPlugin {
         }
     }
 
-    public void loadCraftIRC() {
-    	Plugin p = server.getPluginManager().getPlugin("CraftIRC");
-    	if (p != null) {
-    	    try {
-                out("CraftIRC found, enabling support...");
-                craftIRC = (CraftIRC) p;
-            } catch (ClassCastException ex) {
-                out("Unable to link to CraftIRC!");
-                ex.printStackTrace();
-            }
-        } else {
-            out("CraftIRC not detected!");
-        }
-    }
-    
-    public void broadcast(String msg) {
+    public void broadcast(String msg, String option) {
+        String message = ChatTools.formatMessage(msg, option);
         if (iAuctionSettings.isEnabledHeroChat()) {
-            c.sendMessage("", msg, c.getMsgFormat(), c.getPlayers(), false, true);
+            c.sendMessage("", message, "", c.getPlayers(), false, true);
         } else {
-            server.broadcastMessage((new StringBuilder("")).append(msg).toString());
-        }
-        if (iAuctionSettings.isEnabledCraftIRC()) {
-        	craftIRC.sendMessageToTag((new StringBuilder("[Auction] ")).append(msg.replaceAll("�[0-9a-f]", "")).toString(), iAuctionSettings.getCraftIRCTag());
+            server.broadcastMessage(msg);
         }
     }
   
