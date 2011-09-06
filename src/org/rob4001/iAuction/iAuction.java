@@ -5,6 +5,10 @@
 
 package org.rob4001.iAuction;
 
+import ca.xshade.bukkit.questioner.Questioner;
+import ca.xshade.questionmanager.Option;
+import ca.xshade.questionmanager.Question;
+
 import com.herocraftonline.dthielke.herochat.HeroChat;
 import com.herocraftonline.dthielke.herochat.channels.Channel;
 import com.herocraftonline.dthielke.herochat.channels.ChannelManager;
@@ -27,19 +31,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 //            iProperty, Items
 
 public class iAuction extends JavaPlugin {
-	private Logger log = Logger.getLogger("Minecraft");
+    private Logger log = Logger.getLogger("Minecraft");
     public static MySQLConnection database = null;
     private static AuctionCommand ac = null;
-    
+
     public static Server server;
     public static PermissionHandler Permissions;
     public static iProperty Item;
     public static HashMap<String, String> items;
     public Channel c;
-    
+
     public iAuction() {
         AuctionCommand.isAuction = false;
-        
     }
 
     public void onEnable() {
@@ -47,9 +50,10 @@ public class iAuction extends JavaPlugin {
         server = getServer();
         Item = new iProperty("items.db");
         setupItems();
+
         loadSettings();
         enablePermissions();
-        if (iAuctionSettings.isEnabledHeroChat()) 
+        if (iAuctionSettings.isEnabledHeroChat())
             loadHeroChat();
         getCommand("auction").setExecutor(new AuctionCommand(this));
         ac = new AuctionCommand(this);
@@ -57,7 +61,7 @@ public class iAuction extends JavaPlugin {
             database = new MySQLConnection(this);
             database.createDatabaseTables();
         }
-        out("Version "+pdfFile.getVersion()+" Enabled");
+        out("Version " + pdfFile.getVersion() + " Enabled");
     }
 
     public void onDisable() {
@@ -76,7 +80,8 @@ public class iAuction extends JavaPlugin {
             out("Could not open items.db!");
         }
         if (mappedItems != null) {
-            for (Iterator<?> iterator = mappedItems.keySet().iterator(); iterator.hasNext(); ) {
+            for (Iterator<?> iterator = mappedItems.keySet().iterator(); iterator
+                    .hasNext();) {
                 Object item = iterator.next();
                 String left = (String) item;
                 String right = (String) mappedItems.get(item);
@@ -113,8 +118,9 @@ public class iAuction extends JavaPlugin {
             Permissions = ((Permissions) p).getHandler();
             out("Permissions support enabled!");
         } else {
-        	out("Permissions system is enabled but could not be loaded!");
+            out("Permissions system is enabled but could not be loaded!");
         }
+
     }
 
     public void loadHeroChat() {
@@ -124,14 +130,17 @@ public class iAuction extends JavaPlugin {
                 server.getPluginManager().enablePlugin(p);
             ChannelManager cm = ((HeroChat) p).getChannelManager();
             c = cm.getChannel(iAuctionSettings.getHeroChatChannelName());
-            if (c.getName().equalsIgnoreCase(iAuctionSettings.getHeroChatChannelName()) || c.getNick().equalsIgnoreCase(iAuctionSettings.getHeroChatChannelName())) {
-            	out("Herochat system has been enabled properly!");
+            if (c.getName().equalsIgnoreCase(
+                    iAuctionSettings.getHeroChatChannelName())
+                    || c.getNick().equalsIgnoreCase(
+                            iAuctionSettings.getHeroChatChannelName())) {
+                out("Herochat system has been enabled properly!");
             } else {
-            	out("The channel specified does not exist.");
+                out("The channel specified does not exist.");
             }
 
         } else {
-        	out("HeroChat system is enabled but could not be loaded!");
+            out("HeroChat system is enabled but could not be loaded!");
         }
     }
 
@@ -143,33 +152,41 @@ public class iAuction extends JavaPlugin {
             server.broadcastMessage(msg);
         }
     }
-  
+
     public void out(String message) {
         PluginDescriptionFile pdfFile = this.getDescription();
-        log.info("[" + pdfFile.getName()+ "] " + message);
+        log.info("[" + pdfFile.getName() + "] " + message);
     }
-   
-   	public String getRootFolder() {
-    		if (this != null)
-    			return this.getDataFolder().getPath();
-    		else
-    			return "";
-    	}
-    
+
+    public String getRootFolder() {
+        if (this != null)
+            return this.getDataFolder().getPath();
+        else
+            return "";
+    }
+
     public boolean loadSettings() {
-		try {
-			FileMgmt.checkFolders(new String[]{
-					getRootFolder(),
-					getRootFolder() + FileMgmt.fileSeparator() + ""});
-			iAuctionSettings.loadConfig(getRootFolder() + FileMgmt.fileSeparator() + "config.yml", "/config.yml");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-		return true;
-	}
-    
+        try {
+            FileMgmt.checkFolders(new String[] { getRootFolder(),
+                    getRootFolder() + FileMgmt.fileSeparator() + "" });
+            iAuctionSettings.loadConfig(
+                    getRootFolder() + FileMgmt.fileSeparator() + "config.yml",
+                    "/config.yml");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public void appendQuestion(Questioner questioner, Question question)
+            throws Exception {
+        for (Option option : question.getOptions())
+            if (option.getReaction() instanceof iAuctionQuestionTask)
+                ((iAuctionQuestionTask) option.getReaction()).setiAuction(this);
+        questioner.appendQuestion(question);
+    }
+
 }
