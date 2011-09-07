@@ -43,7 +43,6 @@ public class AuctionCommand implements CommandExecutor {
     private static byte auction_item_byte = 0;
     private static int auctionItemAmount = 0;
     private static int auctionItemStarting = 0;
-    private static double auctionItemBid = 0;
     private static boolean win = false;
     private int i;
 
@@ -77,7 +76,7 @@ public class AuctionCommand implements CommandExecutor {
     }
 
     private void parseAuctionCommand(Player player, String[] split) {
-        if (split.length == 0 ) {
+        if (split.length == 0) {
             if (isAuction) {
                 String out = ("<option><white>"
                         + auctionOwner.getName()
@@ -102,7 +101,8 @@ public class AuctionCommand implements CommandExecutor {
                 warn(player, "There is no auction running at the moment.");
             }
             help(player);
-        } else if (split[0].equalsIgnoreCase("help") || split[0].equalsIgnoreCase("?")) {
+        } else if (split[0].equalsIgnoreCase("help")
+                || split[0].equalsIgnoreCase("?")) {
             for (String line : output)
                 player.sendMessage(line);
         } else if (split[0].equalsIgnoreCase("start")
@@ -467,7 +467,6 @@ public class AuctionCommand implements CommandExecutor {
                 auctionItemAmount = 0;
                 auctionItemStarting = 0;
                 currentBid = 0;
-                auctionItemBid = 0;
                 auctionOwner = null;
                 win = false;
             } else {
@@ -496,7 +495,24 @@ public class AuctionCommand implements CommandExecutor {
                     if (bid <= acc.getHoldings().balance()) {
                         if (isAuction) {
                             if (bid > currentBid) {
-                                confirmBid(player, bid, acc);
+                                win = true;
+                                currentBid = bid;
+                                winner = player;
+                                plugin.broadcast(
+                                        "<subheader><white>"
+                                                + player.getName()
+                                                + " <gray>bid <yellow>"
+                                                + bid
+                                                + ".00 Dei <gray>on <white>"
+                                                + auctionItemAmount
+                                                + " "
+                                                + ItemType.getFromID(
+                                                        auctionItemId,
+                                                        auction_item_byte)
+                                                        .getName() + ".", "");
+                                if (iAuctionSettings.getAntiSnipe())
+                                    i += iAuctionSettings.getAntiSnipeValue();
+
                             } else {
                                 warn(player, "Your bid was too low.");
                             }
@@ -599,7 +615,7 @@ public class AuctionCommand implements CommandExecutor {
                 + auctionItemAmount
                 + " "
                 + ItemType.getFromID(auctionItemId, auction_item_byte)
-                        .getName()+"?";
+                        .getName() + "?";
 
         Plugin test = plugin.getServer().getPluginManager()
                 .getPlugin("Questioner");
@@ -626,63 +642,4 @@ public class AuctionCommand implements CommandExecutor {
             }
         }
     }
-    
-    public void bidCommand(Player player, int bid, Account acc) {
-        win = true;
-        if (bid > auctionItemBid) {
-            currentBid = bid;
-            winner = player;
-            plugin.broadcast(
-                    "<subheader><white>"
-                            + player.getName()
-                            + " <gray>bid <yellow>"
-                            + bid
-                            + ".00 Dei <gray>on <white>"
-                            + auctionItemAmount
-                            + " "
-                            + ItemType.getFromID(
-                                    auctionItemId,
-                                    auction_item_byte)
-                                    .getName() + ".",
-                    "");
-            if (iAuctionSettings.getAntiSnipe())
-                i += iAuctionSettings
-                        .getAntiSnipeValue();
-        }
-    }
-
-    public void confirmBid(Player player, int bid, Account acc) {
-        String phrase = "Are you sure you want to bid " + bid + " on "
-                + auctionItemAmount
-                + " "
-                + ItemType.getFromID(auctionItemId, auction_item_byte)
-                        .getName()+"?";
-
-        Plugin test = plugin.getServer().getPluginManager()
-                .getPlugin("Questioner");
-
-        if (test != null && test instanceof Questioner && test.isEnabled()) {
-            Questioner questioner = (Questioner) test;
-            questioner.loadClasses();
-
-            List<Option> options = new ArrayList<Option>();
-            options.add(new Option("yes", new ConfirmQuestionTask(player,
-                    phrase, bid, acc) {
-                @Override
-                public void run() {
-                    bidCommand(player, bid, acc);
-                }
-            }));
-            options.add(new Option("no",
-                    new ConfirmQuestionTask(player, phrase, bid, acc)));
-            Question question = new Question(player.getName(), phrase, options);
-            try {
-                plugin.appendQuestion(questioner, question);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-
 }
