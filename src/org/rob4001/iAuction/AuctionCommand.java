@@ -484,6 +484,13 @@ public class AuctionCommand implements CommandExecutor {
                 if (player != null) {
                     String name = player.getName();
                     Account acc = iConomy.getAccount(name);
+                    if (auctionOwner.getName().equalsIgnoreCase(player.getName())) {
+                        ChatTools
+                                .formatAndSend(
+                                        "<option>You can't bid on your own auction silly",
+                                        "Auction", player);
+                        return;
+                    }
                     int bid;
                     try {
                         bid = Integer.parseInt(msg[1]);

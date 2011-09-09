@@ -245,4 +245,23 @@ public class ChatTools {
         
         player.sendMessage(message);
     }
+    
+    public static String formatSitTitle(String title) {
+        String line = "}------------------------------------------------------{";
+        int pivot = line.length() / 2;
+        String center = "{ " + Yellow + title + Gold + " }";
+        String out = Gold + line.substring(0, pivot - center.length() / 2);
+        out += center + line.substring(pivot + center.length() / 2);
+        return out;
+    }
+
+    public static String formatSituation(String requirement, String command, String help) {
+        String out = "  ";
+        if (requirement.length() > 0)
+            out += Rose + requirement + ": ";
+        out += Blue + command;
+        if (help.length() > 0)
+            out += " " + LightGray + " : " + help;
+        return out;
+    }
 }
