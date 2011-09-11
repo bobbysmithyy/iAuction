@@ -1,6 +1,7 @@
 package org.rob4001.iAuction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -411,7 +412,7 @@ public class AuctionCommand implements CommandExecutor {
                         }
                     }
                     if (iAuctionSettings.isLogging()) {
-                        writeToMySQL(true);
+                        updateMySQL(true);
                     }
                     winner = null;
                 } else {
@@ -460,7 +461,7 @@ public class AuctionCommand implements CommandExecutor {
                         }
                     }
                     if (iAuctionSettings.isLogging()) {
-                        writeToMySQL(false);
+                        updateMySQL(false);
                     }
                 }
                 auctionItemId = 0;
@@ -484,7 +485,8 @@ public class AuctionCommand implements CommandExecutor {
                 if (player != null) {
                     String name = player.getName();
                     Account acc = iConomy.getAccount(name);
-                    if (auctionOwner.getName().equalsIgnoreCase(player.getName())) {
+                    if (auctionOwner.getName().equalsIgnoreCase(
+                            player.getName())) {
                         ChatTools
                                 .formatAndSend(
                                         "<option>You can't bid on your own auction silly",
@@ -544,18 +546,38 @@ public class AuctionCommand implements CommandExecutor {
         }
     }
 
-    private void writeToMySQL(boolean hasWon) {
+    private void writeToMySQL() {
         String sql = "";
         sql = ("INSERT INTO "
                 + iAuction.database.tableName("log")
                 + " "
                 + " (`username`, `item_id`, `item_count`, `win_username`, `win_price`, `auction_time`) " + " VALUES (?,?,?,?,?,now());");
+
+        iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId,
+                auctionItemAmount, "nothing here", -1);
+    }
+
+    public static int getId() {
+        String sql = "";
+        sql = "SELECT `id` FROM " + iAuction.database.tableName("log")
+                + " WHERE `username` = '" + auctionOwner.getName()
+                + "' ORDER BY `id` LIMIT 1 DESC";
+        HashMap<Integer, ArrayList<String>> i = iAuction.database.Read(sql);
+        if (!i.get(1).get(0).isEmpty()) {
+            return Integer.parseInt(i.get(1).get(0));
+        }
+        return -1;
+    }
+
+    public void updateMySQL(boolean hasWon) {
+        String sql = "";
+        sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
+                + " (`win_username` = ?, `win_price` = ?) " + " WHERE `id` = "
+                + getId() + "");
         if (hasWon) {
-            iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId,
-                    auctionItemAmount, winner.getName(), currentBid);
+            iAuction.database.Write(sql, winner.getName(), currentBid);
         } else {
-            iAuction.database.Write(sql, auctionOwner.getName(), auctionItemId,
-                    auctionItemAmount, "none", currentBid);
+            iAuction.database.Write(sql, "none", currentBid);
         }
     }
 
@@ -615,6 +637,7 @@ public class AuctionCommand implements CommandExecutor {
 
         auctionTimer = new Timer();
         auctionTimer.scheduleAtFixedRate(auctionTT, 0L, 1000L);
+        writeToMySQL();
     }
 
     public void confirmStart(Player player) {

@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import com.imdeity.utils.*;
 
 import org.bukkit.Server;
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,10 +35,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class iAuction extends JavaPlugin {
     private Logger log = Logger.getLogger("Minecraft");
     public static MySQLConnection database = null;
-    private static AuctionCommand ac = null;
 
     public static Server server;
     public static PermissionHandler Permissions;
+    private iAuctionPlayerListener playerListener;
     public static iProperty Item;
     public static HashMap<String, String> items;
     public Channel c;
@@ -50,24 +52,26 @@ public class iAuction extends JavaPlugin {
         server = getServer();
         Item = new iProperty("items.db");
         setupItems();
-
+        playerListener = new iAuctionPlayerListener(this);
         loadSettings();
         enablePermissions();
         if (iAuctionSettings.isEnabledHeroChat())
             loadHeroChat();
         getCommand("auction").setExecutor(new AuctionCommand(this));
-        ac = new AuctionCommand(this);
         if (iAuctionSettings.isLogging()) {
             database = new MySQLConnection(this);
             database.createDatabaseTables();
         }
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN,
+                playerListener, Priority.Highest, this);
+        
         out("Version " + pdfFile.getVersion() + " Enabled");
     }
 
     public void onDisable() {
-        if (AuctionCommand.isAuction) {
-            ac.auctionStop(AuctionCommand.timerPlayer);
-        }
+//        if (AuctionCommand.isAuction) {
+//            ac.auctionStop(AuctionCommand.timerPlayer);
+//        }
         out("Disabled!");
     }
 
