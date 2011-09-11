@@ -77,7 +77,7 @@ public class iAuctionPlayerListener extends PlayerListener {
             int id  = 0;
             sql = "SELECT `id` FROM " + iAuction.database.tableName("log")
                     + " WHERE `username` = '" + player.getName()
-                    + "' ORDER BY `id` DESC LIMIT 1";
+                    + "' ORDER BY `id` DESC";
             query = iAuction.database.Read(sql);
             System.out.println(query);
             if (!query.get(1).get(0).isEmpty()) {
