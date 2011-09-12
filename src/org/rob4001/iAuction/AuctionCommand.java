@@ -132,6 +132,9 @@ public class AuctionCommand implements CommandExecutor {
                         warn(player, "Invalid syntax.");
                         help(player);
                         return;
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        return;
                     }
                     int maxTime = iAuctionSettings.getMaxTime();
                     if (maxTime != 0 && auctionTime > maxTime) {
@@ -348,7 +351,6 @@ public class AuctionCommand implements CommandExecutor {
                 || player == auctionOwner || player.isOp()) {
             if (isAuction) {
                 isAuction = false;
-                auctionTimer.cancel();
                 int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
                 if (win) {
                     plugin.broadcast(
@@ -469,6 +471,8 @@ public class AuctionCommand implements CommandExecutor {
                 auctionItemStarting = 0;
                 currentBid = 0;
                 auctionOwner = null;
+                auctionTime = 0;
+                auctionTimer.cancel();
                 win = false;
             } else {
                 warn(player, "No auctions in session at the moment!");
@@ -597,34 +601,36 @@ public class AuctionCommand implements CommandExecutor {
         isAuction = true;
         inventory.removeItem(new ItemStack[] { new ItemStack(auctionItemId,
                 auctionItemAmount, auctionItemDamage, auction_item_byte) });
-        final int interval = auctionTime;
+
+        int interval = auctionTime;
 
         i = interval;
+        if (i == 0) {
+            auctionTT = new TimerTask() {
 
-        auctionTT = new TimerTask() {
+                double three = Math.floor(i * .75);
+                double half = Math.floor(i / 2);
+                double quarter = Math.floor(i / 4);
+                double eighth = Math.floor(i / 8);
 
-            double three = Math.floor(i * .75);
-            double half = Math.floor(i / 2);
-            double quarter = Math.floor(i / 4);
-            double eighth = Math.floor(i / 8);
-
-            @Override
-            public void run() {
-                if (i > 0) {
-                    if (i == 1) {
-                        plugin.broadcast("<subheader><gray>" + i
-                                + " second left to bid!", "");
-                    } else if (i == three || i == half || i == quarter
-                            || i == eighth || i == 3 || i == 2) {
-                        plugin.broadcast("<subheader><gray>" + i
-                                + " seconds left to bid!", "");
+                @Override
+                public void run() {
+                    if (i > 0) {
+                        if (i == 1) {
+                            plugin.broadcast("<subheader><gray>" + i
+                                    + " second left to bid!", "");
+                        } else if (i == three || i == half || i == quarter
+                                || i == eighth || i == 3 || i == 2) {
+                            plugin.broadcast("<subheader><gray>" + i
+                                    + " seconds left to bid!", "");
+                        }
+                    } else {
+                        auctionStop(timerPlayer);
                     }
-                } else {
-                    auctionStop(timerPlayer);
+                    i--;
                 }
-                i--;
-            }
-        };
+            };
+        }
 
         plugin.broadcast("<option><white>"
                 + auctionOwner.getName()
