@@ -576,7 +576,7 @@ public class AuctionCommand implements CommandExecutor {
     public void updateMySQL(boolean hasWon) {
         String sql = "";
         sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
-                + " (`win_username` = ?, `win_price` = ?) " + " WHERE `id` = "
+                + " `win_username` = ? AND `win_price` = ? " + " WHERE `id` = "
                 + getId() + "");
         if (hasWon) {
             iAuction.database.Write(sql, winner.getName(), currentBid);
