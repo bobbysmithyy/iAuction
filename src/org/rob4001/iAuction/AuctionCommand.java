@@ -565,7 +565,7 @@ public class AuctionCommand implements CommandExecutor {
         String sql = "";
         sql = "SELECT `id` FROM " + iAuction.database.tableName("log")
                 + " WHERE `username` = '" + auctionOwner.getName()
-                + "' ORDER BY `id` LIMIT 1 DESC";
+                + "' ORDER BY `id` DESC LIMIT 1";
         HashMap<Integer, ArrayList<String>> i = iAuction.database.Read(sql);
         if (!i.get(1).get(0).isEmpty()) {
             return Integer.parseInt(i.get(1).get(0));
