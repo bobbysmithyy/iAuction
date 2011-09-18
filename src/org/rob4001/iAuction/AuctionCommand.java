@@ -486,7 +486,7 @@ public class AuctionCommand implements CommandExecutor {
     public void auctionBid(Player player, String msg[]) {
         if (iAuction.Permissions.has(player, "auction.bid") || player.isOp()) {
             if (msg.length == 2) {
-                if (player != null) {
+                if (player != null && isAuction) {
                     String name = player.getName();
                     Account acc = iConomy.getAccount(name);
                     if (auctionOwner.getName().equalsIgnoreCase(
@@ -576,12 +576,12 @@ public class AuctionCommand implements CommandExecutor {
     public void updateMySQL(boolean hasWon) {
         String sql = "";
         sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
-                + " `win_username` = ? AND `win_price` = ? " + " WHERE `id` = "
+                + " `win_username` = ?, `win_price` = ? " + " WHERE `id` = "
                 + getId() + "");
         if (hasWon) {
             iAuction.database.Write(sql, winner.getName(), currentBid);
         } else {
-            iAuction.database.Write(sql, "none", currentBid);
+            iAuction.database.Write(sql, "", currentBid);
         }
     }
 
@@ -605,7 +605,7 @@ public class AuctionCommand implements CommandExecutor {
         int interval = auctionTime;
 
         i = interval;
-        if (i == 0) {
+        if (i != 0) {
             auctionTT = new TimerTask() {
 
                 double three = Math.floor(i * .75);

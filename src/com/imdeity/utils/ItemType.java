@@ -23,7 +23,7 @@ public enum ItemType {
     GRASS(2, "Grass"),
     DIRT(3, "Dirt"),
     COBBLESTONE(4, "Cobblestone", "cobble"),
-    WOOD(5, "Wood", new String[] {"woodplank", "plank", "woodplanks", "planks"}),
+    WOOD(5, "Wood", new String[] {"woodplank", "plank", "woodplanks", "planks","regularwood"}),
     SAPLING(6,0, "Sapling"),
     SPRUCE_SAPLING(6,1, "Spruce Sapling", "spruce"),
     BIRCH_SAPLING(6,2, "Birch Sapling", "birch"),
@@ -48,7 +48,7 @@ public enum ItemType {
     SPONGE(19, "Sponge"),
     GLASS(20, "Glass"),
     LAPIS_LAZULI_ORE(21, "Lapis lazuli ore", new String[] { "blueore", "lapisore"}),
-    LAPIS_LAZULI_BLOCK(22, "Lapis lazuli block", new String[] {"bluerock","lapisblock"}),
+    LAPIS_LAZULI_BLOCK(22, "Lapis lazuli block", new String[] {"bluerock","lapisblock","lapis-block"}),
     DISPENSER(23, "Dispenser"),
     SANDSTONE(24, "Sandstone"),
     NOTE_BLOCK(25, "Note block", new String[] {"musicblock", "note", "music", "instrument"}),
@@ -58,7 +58,7 @@ public enum ItemType {
     DETECTOR_RAIL(28, "Detector Rail"),
     STICKY_PISTON(29, "Sticky Piston"),
     WEB(30, "Web", "spiderweb"),
-    TALL_GRASS_DEADSHRUB(31,0,"Dead shrub","deadschrub"),
+    TALL_GRASS_DEADSHRUB(31,0,"Dead shrub",new String[] {"deadschrub","deadbush","dead-bush"}),
     TALL_GRASS(31,1,"Tall Grass","tallgrass"),
     TALL_GRASS_FERN(31,2,"Fern"),
     TALL_GRASS_DEADSHRUB2(32,"Dead shrub 2"),
@@ -160,11 +160,21 @@ public enum ItemType {
     CAKE(92, "Cake",  "cakeblock"),
     REDSTONE_REPEATER_OFF(93, "Redstone repeater (off)", new String[] {"diodeoff", "redstonerepeater", "repeater", "delayer"}),
     REDSTONE_REPEATER_ON(94, "Redstone repeater (on)", new String[] {"diode", "diodeon", "redstonerepeateron", "repeateron", "delayeron"}),
-    LOCKED_CHEST(95, "Locked chest", new String[] { "steveco", "supplycrate", "valveneedstoworkonep3nottf2kthx"}),
+    LOCKED_CHEST(95, "Locked chest", new String[] { "steveco", "supplycrate"}),
     TRAP_DOOR(96,"Trap door"),
-
+    HIDDEN_SILVERFISH(97,"Hidden Silverfish"),
+    STONE_BRICK(98,"Stone Brick"),
+    HUGE_MUSHROOM_1(99, "Huge Red Mushroom"),
+    HUGE_MUSHROOM_2(100, "Huge Brown Mushroom"),
+    IRON_FENCE(101, "Iron Fence"),
+    THIN_GLASS(102, "Glass Pane"),
+    MELON_BLOCK(103, "Melon"),
+    VINE(106, "Vines"),
+    FENCE_GATE(107, "Fence Gate"),
+    BRICK_STAIRS(108, "Brick Stairs"),
+    SMOOTH_STAIRS(109, "Stone Brick Stairs"),
     // Items
-    IRON_SHOVEL(256, "Iron shovel"),
+    IRON_SHOVEL(256, "Iron shovel","ironspade"),
     IRON_PICK(257, "Iron pick",  "ironpickaxe"),
     IRON_AXE(258, "Iron axe"),
     FLINT_AND_TINDER(259, "Flint and tinder",
@@ -180,22 +190,22 @@ public enum ItemType {
     GOLD_BAR(266, "Gold bar", "goldingot",ChatColor.GOLD),
     IRON_SWORD(267, "Iron sword"),
     WOOD_SWORD(268, "Wooden sword", "woodsword"),
-    WOOD_SHOVEL(269, "Wooden shovel", "woodshovel"),
+    WOOD_SHOVEL(269, "Wooden shovel", new String[] {"woodshovel","woodenspade","woodspade"}),
     WOOD_PICKAXE(270, "Wooden pickaxe", new String[] {"woodpick", "woodpickaxe"}),
     WOOD_AXE(271, "Wooden axe", "woodaxe"),
     STONE_SWORD(272, "Stone sword", "stonesword"),
-    STONE_SHOVEL(273, "Stone shovel", "stoneshovel"),
+    STONE_SHOVEL(273, "Stone shovel",new String[] {"stoneshovel","stonespade" }),
     STONE_PICKAXE(274, "Stone pickaxe", "stonepick"),
     STONE_AXE(275, "Stone pickaxe", "stoneaxe"),
     DIAMOND_SWORD(276, "Diamond sword", ChatColor.AQUA),
-    DIAMOND_SHOVEL(277, "Diamond shovel", "diamondshovel",ChatColor.AQUA),
+    DIAMOND_SHOVEL(277, "Diamond shovel", new String[] {"diamondshovel","diamondspade"}, ChatColor.AQUA),
     DIAMOND_PICKAXE(278, "Diamond pickaxe", new String[] {"diamondpick", "diamondpickaxe"},ChatColor.AQUA),
     DIAMOND_AXE(279, "Diamond axe", "diamondaxe",ChatColor.AQUA),
     STICK(280, "Stick", "stick"),
     BOWL(281, "Bowl", "bowl"),
     MUSHROOM_SOUP(282, "Mushroom soup", new String[] {"mushroomsoup", "soup", "brbsoup"}),
     GOLD_SWORD(283, "Golden sword", "goldsword",ChatColor.GOLD),
-    GOLD_SHOVEL(284, "Golden shovel", "goldshovel",ChatColor.GOLD),
+    GOLD_SHOVEL(284, "Golden shovel",new String[] {"goldshovel","goldspade"},ChatColor.GOLD),
     GOLD_PICKAXE(285, "Golden pickaxe", new String[] {"goldpick", "goldpickaxe"},ChatColor.GOLD),
     GOLD_AXE(286, "Golden axe", "goldaxe",ChatColor.GOLD),
     STRING(287, "String"),
@@ -215,7 +225,7 @@ public enum ItemType {
     LEATHER_BOOTS(301, "Leather boots", "leatherboots"),
     CHAINMAIL_HELMET(302, "Chainmail helmet"),
     CHAINMAIL_CHEST(303, "Chainmail chestplate", "chainmailchest"),
-    CHAINMAIL_PANTS(304, "Chainmail pants", "chainmailleggings"),
+    CHAINMAIL_PANTS(304, "Chainmail pants", new String[] {"chainmailleggings","chainmail_leggi"}),
     CHAINMAIL_BOOTS(305, "Chainmail boots"),
     IRON_HELMET(306, "Iron helmet"),
     IRON_CHEST(307, "Iron chestplate", "ironchest"),
@@ -233,7 +243,7 @@ public enum ItemType {
     RAW_PORKCHOP(319, "Raw porkchop",
             new String[] {"rawpork", "rawbacon", "baconstrips", "rawmeat"}),
     COOKED_PORKCHOP(320, "Cooked porkchop",
-            new String[] {"pork", "cookedpork", "cookedbacon", "bacon", "meat"}),
+            new String[] {"pork", "cookedpork", "cookedbacon", "bacon", "meat","grilledpork"}),
     PAINTING(321, "Painting"),
     GOLD_APPLE(322, "Golden apple", "goldapple"),
     SIGN(323, "Wooden sign", "sign"),
@@ -250,7 +260,7 @@ public enum ItemType {
     LEATHER(334, "Leather", "cowhide"),
     MILK_BUCKET(335, "Milk bucket", new String[] {"milk", "milkbukkit"}),
     BRICK_BAR(336, "Brick"),
-    CLAY_BALL(337, "Clay"),
+    CLAY_BALL(337, "ClayBall"),
     SUGAR_CANE_ITEM(338, "Sugar cane", new String[] { "reed", "reeds"}),
     PAPER(339, "Paper"),
     BOOK(340, "Book"),
@@ -291,6 +301,15 @@ public enum ItemType {
     COOKIE(357, "Cookie"),
     MAP(358, "Map"),
     SHEARS(359, "Shears", "sheepshears"),
+    MELON(360, "Melon"),
+    PUMPKIN_SEEDS(361, "Pumpkin Seeds"),
+    MELON_SEEDS(362, "Melon Seeds"),
+    RAW_BEEF(363, "Raw Beef"),
+    COOKED_BEEF(364, "Steak"),
+    RAW_CHICKEN(365, "Raw Chicken"),
+    COOKED_CHICKEN(366, "Cooked Chicken"),
+    ROTTEN_FLESH(367, "Rotten Flesh"),
+    ENDER_PEARL(368, "Ender Pearl"),
     GOLD_RECORD(2256, "Gold Record", "golddisc"),
     GREEN_RECORD(2257, "Green Record", "greendisc");
 
@@ -373,11 +392,11 @@ public enum ItemType {
     }
     
     ItemType(int id,  String name, String lookupKey) {
-        this(id,0,name,lookupKey,null);
+        this(id,name,lookupKey,null);
     }
 
     ItemType(int id, String name, String[] lookupKeys) {
-        this(id,0,name,lookupKeys,null);
+        this(id,name,lookupKeys,null);
     }
 
     ItemType(int id, int dataValue, String name, String lookupKey) {
@@ -395,8 +414,6 @@ public enum ItemType {
     ItemType(int id, String name, String[] lookupKeys, ChatColor color) {
         this(id,0,name,lookupKeys,color);
     }
-
-
     
     
     /**
@@ -417,13 +434,18 @@ public enum ItemType {
      * @return
      */
     public static ItemType getFromID(int id,int dataValue) {
-        return ids.get(id*1000+dataValue);
+        int blockKey = id*1000 + dataValue;
+        ItemType returnValue = ids.get(blockKey);
+        if (returnValue==null) {
+            blockKey = id*1000;
+            returnValue = ids.get(blockKey);
+        }
+        return returnValue;
     }
 
     public static ItemType getFromBlock(Block block) {
-        return ids.get(block.getTypeId()*1000+ block.getData());
+        return getFromID(block.getTypeId(),block.getData());
     }
-    
     
     /**
      * Return type from MaterialData
@@ -445,8 +467,7 @@ public enum ItemType {
         MaterialData data = item.getData();
         if (data==null)
             return getFromID(item.getTypeId());
-        else        
-            return getFromID(item.getData().getItemTypeId(),  item.getData().getData());
+        return getFromID(item.getData().getItemTypeId(),  item.getData().getData());
     }
     
     /**
@@ -471,9 +492,8 @@ public enum ItemType {
         ItemType type = ids.get(id*1000 + dataValue);
         if (type != null) {
             return type.getName();
-        } else {
-            return "#" + id;
         }
+        return "#" + id;
     }
 
     /**
@@ -517,9 +537,8 @@ public enum ItemType {
     public static String toHeldName(int id,int dataValue) {
         if (id == 0) {
             return "Hand";
-        } else {
-            return (toName(id,dataValue));
         }
+        return (toName(id,dataValue));
     }
 
     /**
@@ -529,7 +548,7 @@ public enum ItemType {
      * @return
      */
     public static ItemType lookup(String name) {
-        return lookup.get(name.toLowerCase());
+        return lookup.get(name.toLowerCase().replaceAll("(\\s++|[_-])",""));
     }
 
     /**
@@ -538,7 +557,7 @@ public enum ItemType {
      * @return
      */
     public int getID() {
-        return id;
+        return this.id;
     }
 
     public ItemStack getItemStack(int amount) {
@@ -551,7 +570,7 @@ public enum ItemType {
      * @return
      */
     public int getDataValue() {
-        return dataValue;
+        return this.dataValue;
     }
 
     /**
@@ -560,15 +579,15 @@ public enum ItemType {
      * @return
      */
     public String getName() {
-        return nicename;
+        return this.nicename;
     }
 
     public String getColorString() {
-        return ((color!=null)?color.toString():"");
+        return ((this.color!=null)?this.color.toString():"");
     }
     
     public String getColoredName() {
-        return getColorString() + nicename;
+        return getColorString() + this.nicename;
     }
     
     /**
@@ -577,7 +596,7 @@ public enum ItemType {
      * @return
      */
     public String[] getAliases() {
-        return lookupKeys;
+        return this.lookupKeys;
     }
 
     /**
@@ -655,6 +674,13 @@ public enum ItemType {
             item = ItemType.getFromID(item.getID(), dataValue);
         }
         return item;
+    }
+
+    public boolean equals(ItemType other) {
+        if (other==null) {
+            return false;
+        }
+        return ((this.getID() == other.getID()) && (this.getDataValue() == other.getDataValue()));
     }
     
     /**

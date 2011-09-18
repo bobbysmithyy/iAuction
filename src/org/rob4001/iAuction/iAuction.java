@@ -153,7 +153,7 @@ public class iAuction extends JavaPlugin {
         if (iAuctionSettings.isEnabledHeroChat()) {
             c.sendMessage("", message, "", c.getPlayers(), false, true);
         } else {
-            server.broadcastMessage(msg);
+            server.broadcastMessage(message);
         }
     }
 

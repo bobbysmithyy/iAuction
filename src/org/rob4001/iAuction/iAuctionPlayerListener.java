@@ -85,7 +85,7 @@ public class iAuctionPlayerListener extends PlayerListener {
             }
             
             sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
-                    + " `win_username` = ?, `win_price` = ? " + " WHERE `id` = "
+                    + " `win_username` = ?,  `win_price` = ? " + " WHERE `id` = "
                     + id + "");
             iAuction.database.Write(sql, "Items Returned", -1);
         }
