@@ -29,7 +29,7 @@ public class AuctionCommand implements CommandExecutor {
 
     private static final List<String> output = new ArrayList<String>();
 
-    private iAuction plugin = null;
+    private static iAuction plugin = null;
 
     public static Player auctionOwner = null;
     public static Player timerPlayer = null;
@@ -45,7 +45,7 @@ public class AuctionCommand implements CommandExecutor {
     private static int auctionItemAmount = 0;
     private static int auctionItemStarting = 0;
     private static boolean win = false;
-    private int i;
+    private static int i;
 
     static {
         output.add(ChatTools.formatTitle("Auction"));
@@ -349,139 +349,12 @@ public class AuctionCommand implements CommandExecutor {
     public void auctionStop(Player player) {
         if (iAuction.Permissions.has(player, "auction.end")
                 || player == auctionOwner || player.isOp()) {
-            if (isAuction) {
-                isAuction = false;
-                int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
-                if (win) {
-                    plugin.broadcast(
-                            "<option><white>"
-                                    + winner.getName()
-                                    + "<gray> won <yellow>"
-                                    + auctionItemAmount
-                                    + " "
-                                    + ItemType.getFromID(auctionItemId,
-                                            auction_item_byte).getName()
-                                    + "<gray> for <yellow>" + currentBid
-                                    + ".00 Dei.", "Auction");
-
-                    ChatTools.formatAndSend("<option><green>Enjoy your items!",
-                            "Auction", winner);
-                    ChatTools.formatAndSend(
-                            "<option><green>Your items have been sold for "
-                                    + currentBid + ".00 Dei!", "Auction",
-                            auctionOwner);
-
-                    iConomy.getAccount(winner.getName()).getHoldings()
-                            .subtract(currentBid);
-                    iConomy.getAccount(auctionOwner.getName()).getHoldings()
-                            .add(currentBid);
-                    int remainder = auctionItemAmount % mat;
-                    int stacks = auctionItemAmount / mat;
-                    ArrayList<ItemStack> it = new ArrayList<ItemStack>();
-                    if (auctionItemAmount >= mat) {
-                        it = new ArrayList<ItemStack>();
-                        for (i = 0; i < stacks; i++) {
-                            it.add(new ItemStack(auctionItemId, mat,
-                                    auctionItemDamage, auction_item_byte));
-                        }
-                        if (remainder > 0) {
-                            it.add(new ItemStack(auctionItemId, remainder,
-                                    auctionItemDamage, auction_item_byte));
-                        }
-                    } else {
-                        it.add(new ItemStack(auctionItemId, auctionItemAmount,
-                                auctionItemDamage, auction_item_byte));
-                    }
-
-                    if (Misc.hasSpace(winner, stacks)) {
-
-                        for (ItemStack i : it) {
-                            winner.getInventory().addItem(i);
-                        }
-
-                    } else {
-                        ChatTools
-                                .formatAndSend(
-                                        "<subheader>You do not have enough Inventory space!",
-                                        "", winner);
-                        ChatTools
-                                .formatAndSend(
-                                        "<subheader>The items have been dropped at your feet",
-                                        "", winner);
-                        for (ItemStack i : it) {
-                            winner.getWorld().dropItemNaturally(
-                                    winner.getLocation(), i);
-                        }
-                    }
-                    if (iAuctionSettings.isLogging()) {
-                        updateMySQL(true);
-                    }
-                    winner = null;
-                } else {
-                    plugin.broadcast("<option>Ended with no bids.", "Auction");
-                    ChatTools.formatAndSend(
-                            "<subheader>Your items have been returned to you!",
-                            "", auctionOwner);
-
-                    int remainder = auctionItemAmount % mat;
-                    int stacks = auctionItemAmount / mat;
-
-                    ArrayList<ItemStack> it = new ArrayList<ItemStack>();
-                    if (auctionItemAmount >= mat) {
-                        it = new ArrayList<ItemStack>();
-                        for (i = 0; i < stacks; i++) {
-                            it.add(new ItemStack(auctionItemId, mat,
-                                    auctionItemDamage, auction_item_byte));
-                        }
-                        if (remainder > 0) {
-                            it.add(new ItemStack(auctionItemId, remainder,
-                                    auctionItemDamage, auction_item_byte));
-                        }
-                    } else {
-                        it.add(new ItemStack(auctionItemId, auctionItemAmount,
-                                auctionItemDamage, auction_item_byte));
-                    }
-
-                    if (Misc.hasSpace(auctionOwner, stacks)) {
-
-                        for (ItemStack i : it) {
-                            auctionOwner.getInventory().addItem(i);
-                        }
-
-                    } else {
-                        ChatTools
-                                .formatAndSend(
-                                        "<subheader>You do not have enough Inventory space!",
-                                        "", auctionOwner);
-                        ChatTools
-                                .formatAndSend(
-                                        "<subheader>The items have been dropped at your feet",
-                                        "", auctionOwner);
-                        for (ItemStack i : it) {
-                            auctionOwner.getWorld().dropItemNaturally(
-                                    auctionOwner.getLocation(), i);
-                        }
-                    }
-                    if (iAuctionSettings.isLogging()) {
-                        updateMySQL(false);
-                    }
-                }
-                auctionItemId = 0;
-                auctionItemAmount = 0;
-                auctionItemStarting = 0;
-                currentBid = 0;
-                auctionOwner = null;
-                auctionTime = 0;
-                auctionTimer.cancel();
-                win = false;
-            } else {
-                warn(player, "No auctions in session at the moment!");
-                return;
-            }
+            endAuction();
         } else {
             warn(player, "You have no permissions to stop that auction!");
         }
     }
+    
 
     public void auctionBid(Player player, String msg[]) {
         if (iAuction.Permissions.has(player, "auction.bid") || player.isOp()) {
@@ -573,7 +446,7 @@ public class AuctionCommand implements CommandExecutor {
         return -1;
     }
 
-    public void updateMySQL(boolean hasWon) {
+    public static void updateMySQL(boolean hasWon) {
         String sql = "";
         sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
                 + " `win_username` = ?, `win_price` = ? " + " WHERE `id` = "
@@ -676,6 +549,138 @@ public class AuctionCommand implements CommandExecutor {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
+        }
+    }
+    
+    public static void endAuction() {
+        if (isAuction) {
+            isAuction = false;
+            auctionTime = 0;
+            auctionTimer.cancel();
+            int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
+            if (win) {
+                plugin.broadcast(
+                        "<option><white>"
+                                + winner.getName()
+                                + "<gray> won <yellow>"
+                                + auctionItemAmount
+                                + " "
+                                + ItemType.getFromID(auctionItemId,
+                                        auction_item_byte).getName()
+                                + "<gray> for <yellow>" + currentBid
+                                + ".00 Dei.", "Auction");
+
+                ChatTools.formatAndSend("<option><green>Enjoy your items!",
+                        "Auction", winner);
+                ChatTools.formatAndSend(
+                        "<option><green>Your items have been sold for "
+                                + currentBid + ".00 Dei!", "Auction",
+                        auctionOwner);
+
+                iConomy.getAccount(winner.getName()).getHoldings()
+                        .subtract(currentBid);
+                iConomy.getAccount(auctionOwner.getName()).getHoldings()
+                        .add(currentBid);
+                int remainder = auctionItemAmount % mat;
+                int stacks = auctionItemAmount / mat;
+                ArrayList<ItemStack> it = new ArrayList<ItemStack>();
+                if (auctionItemAmount >= mat) {
+                    it = new ArrayList<ItemStack>();
+                    for (i = 0; i < stacks; i++) {
+                        it.add(new ItemStack(auctionItemId, mat,
+                                auctionItemDamage, auction_item_byte));
+                    }
+                    if (remainder > 0) {
+                        it.add(new ItemStack(auctionItemId, remainder,
+                                auctionItemDamage, auction_item_byte));
+                    }
+                } else {
+                    it.add(new ItemStack(auctionItemId, auctionItemAmount,
+                            auctionItemDamage, auction_item_byte));
+                }
+
+                if (Misc.hasSpace(winner, stacks)) {
+
+                    for (ItemStack i : it) {
+                        winner.getInventory().addItem(i);
+                    }
+
+                } else {
+                    ChatTools
+                            .formatAndSend(
+                                    "<subheader>You do not have enough Inventory space!",
+                                    "", winner);
+                    ChatTools
+                            .formatAndSend(
+                                    "<subheader>The items have been dropped at your feet",
+                                    "", winner);
+                    for (ItemStack i : it) {
+                        winner.getWorld().dropItemNaturally(
+                                winner.getLocation(), i);
+                    }
+                }
+                if (iAuctionSettings.isLogging()) {
+                    updateMySQL(true);
+                }
+                winner = null;
+            } else {
+                plugin.broadcast("<option>Ended with no bids.", "Auction");
+                ChatTools.formatAndSend(
+                        "<subheader>Your items have been returned to you!",
+                        "", auctionOwner);
+
+                int remainder = auctionItemAmount % mat;
+                int stacks = auctionItemAmount / mat;
+
+                ArrayList<ItemStack> it = new ArrayList<ItemStack>();
+                if (auctionItemAmount >= mat) {
+                    it = new ArrayList<ItemStack>();
+                    for (i = 0; i < stacks; i++) {
+                        it.add(new ItemStack(auctionItemId, mat,
+                                auctionItemDamage, auction_item_byte));
+                    }
+                    if (remainder > 0) {
+                        it.add(new ItemStack(auctionItemId, remainder,
+                                auctionItemDamage, auction_item_byte));
+                    }
+                } else {
+                    it.add(new ItemStack(auctionItemId, auctionItemAmount,
+                            auctionItemDamage, auction_item_byte));
+                }
+
+                if (Misc.hasSpace(auctionOwner, stacks)) {
+
+                    for (ItemStack i : it) {
+                        auctionOwner.getInventory().addItem(i);
+                    }
+
+                } else {
+                    ChatTools
+                            .formatAndSend(
+                                    "<subheader>You do not have enough Inventory space!",
+                                    "", auctionOwner);
+                    ChatTools
+                            .formatAndSend(
+                                    "<subheader>The items have been dropped at your feet",
+                                    "", auctionOwner);
+                    for (ItemStack i : it) {
+                        auctionOwner.getWorld().dropItemNaturally(
+                                auctionOwner.getLocation(), i);
+                    }
+                }
+                if (iAuctionSettings.isLogging()) {
+                    updateMySQL(false);
+                }
+            }
+            auctionItemId = 0;
+            auctionItemAmount = 0;
+            auctionItemStarting = 0;
+            currentBid = 0;
+            auctionOwner = null;
+            win = false;
+        } else {
+            System.out.println("[Auction] No auctions in session at the moment!");
+            return;
         }
     }
 }

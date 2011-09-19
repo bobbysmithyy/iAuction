@@ -63,7 +63,9 @@ public class iAuction extends JavaPlugin {
             database.createDatabaseTables();
         }
         getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN,
-                playerListener, Priority.Highest, this);
+                playerListener, Priority.High, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT,
+                playerListener, Priority.High, this);
         
         out("Version " + pdfFile.getVersion() + " Enabled");
     }

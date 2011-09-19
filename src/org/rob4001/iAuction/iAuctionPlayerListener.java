@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.imdeity.utils.ChatTools;
@@ -30,7 +31,8 @@ public class iAuctionPlayerListener extends PlayerListener {
                 + "' ORDER BY `id` DESC";
         HashMap<Integer, ArrayList<String>> query = iAuction.database.Read(sql);
 
-        if (!query.isEmpty() && query.get(1).get(4).equalsIgnoreCase("nothing here")
+        if (!query.isEmpty()
+                && query.get(1).get(4).equalsIgnoreCase("nothing here")
                 && query.get(1).get(1).equalsIgnoreCase(player.getName())) {
 
             int auctionItemAmount = Integer.parseInt(query.get(1).get(3));
@@ -73,8 +75,8 @@ public class iAuctionPlayerListener extends PlayerListener {
                             .dropItemNaturally(player.getLocation(), i);
                 }
             }
-            
-            int id  = 0;
+
+            int id = 0;
             sql = "SELECT `id` FROM " + iAuction.database.tableName("log")
                     + " WHERE `username` = '" + player.getName()
                     + "' ORDER BY `id` DESC";
@@ -83,14 +85,23 @@ public class iAuctionPlayerListener extends PlayerListener {
             if (!query.get(1).get(0).isEmpty()) {
                 id = Integer.parseInt(query.get(1).get(0));
             }
-            
+
             sql = ("UPDATE " + iAuction.database.tableName("log") + " SET "
-                    + " `win_username` = ?,  `win_price` = ? " + " WHERE `id` = "
-                    + id + "");
+                    + " `win_username` = ?,  `win_price` = ? "
+                    + " WHERE `id` = " + id + "");
             iAuction.database.Write(sql, "Items Returned", -1);
         }
     }
-    
-    
+
+    @Override
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+
+        if (AuctionCommand.isAuction
+                && AuctionCommand.auctionOwner.getName().equalsIgnoreCase(
+                        player.getName())) {
+            AuctionCommand.endAuction();
+        }
+    }
 
 }
