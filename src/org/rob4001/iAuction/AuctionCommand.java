@@ -354,7 +354,6 @@ public class AuctionCommand implements CommandExecutor {
             warn(player, "You have no permissions to stop that auction!");
         }
     }
-    
 
     public void auctionBid(Player player, String msg[]) {
         if (iAuction.Permissions.has(player, "auction.bid") || player.isOp()) {
@@ -470,6 +469,10 @@ public class AuctionCommand implements CommandExecutor {
     }
 
     public void startCommand(Player player) {
+        if (isAuction) {
+            warn(player, "There is an auction running at the moment.");
+            return;
+        }
         PlayerInventory inventory = player.getInventory();
         isAuction = true;
         inventory.removeItem(new ItemStack[] { new ItemStack(auctionItemId,
@@ -551,7 +554,7 @@ public class AuctionCommand implements CommandExecutor {
             }
         }
     }
-    
+
     public static void endAuction() {
         if (isAuction) {
             isAuction = false;
@@ -559,16 +562,14 @@ public class AuctionCommand implements CommandExecutor {
             auctionTimer.cancel();
             int mat = Material.getMaterial(auctionItemId).getMaxStackSize();
             if (win) {
-                plugin.broadcast(
-                        "<option><white>"
-                                + winner.getName()
-                                + "<gray> won <yellow>"
-                                + auctionItemAmount
-                                + " "
-                                + ItemType.getFromID(auctionItemId,
-                                        auction_item_byte).getName()
-                                + "<gray> for <yellow>" + currentBid
-                                + ".00 Dei.", "Auction");
+                plugin.broadcast("<option><white>"
+                        + winner.getName()
+                        + "<gray> won <yellow>"
+                        + auctionItemAmount
+                        + " "
+                        + ItemType.getFromID(auctionItemId, auction_item_byte)
+                                .getName() + "<gray> for <yellow>" + currentBid
+                        + ".00 Dei.", "Auction");
 
                 ChatTools.formatAndSend("<option><green>Enjoy your items!",
                         "Auction", winner);
@@ -626,8 +627,8 @@ public class AuctionCommand implements CommandExecutor {
             } else {
                 plugin.broadcast("<option>Ended with no bids.", "Auction");
                 ChatTools.formatAndSend(
-                        "<subheader>Your items have been returned to you!",
-                        "", auctionOwner);
+                        "<subheader>Your items have been returned to you!", "",
+                        auctionOwner);
 
                 int remainder = auctionItemAmount % mat;
                 int stacks = auctionItemAmount / mat;
@@ -679,7 +680,8 @@ public class AuctionCommand implements CommandExecutor {
             auctionOwner = null;
             win = false;
         } else {
-            System.out.println("[Auction] No auctions in session at the moment!");
+            System.out
+                    .println("[Auction] No auctions in session at the moment!");
             return;
         }
     }
